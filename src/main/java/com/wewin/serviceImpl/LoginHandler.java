@@ -1,4 +1,4 @@
-package com.wewin.service;
+package com.wewin.serviceImpl;
 
 import com.wewin.entity.UserInfo;
 import com.wewin.mapper.UserInfoMapper;
