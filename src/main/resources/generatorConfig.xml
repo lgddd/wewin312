@@ -24,9 +24,10 @@
         <table schema="wewin" tableName="yhxx" domainObjectName="UserInfo" enableCountByExample="true" enableUpdateByExample="true"
                enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true">
             <columnOverride column="openid" property="openid"  />
-            <columnOverride column="nickname" property="nickname" />
-            <columnOverride column="avatar" property="avatar" />
-
+            <columnOverride column="nick_name" property="nickname" />
+            <columnOverride column="school" property="school" />
+            <columnOverride column="student_no" property="student_no" />
+            <columnOverride column="phone_no" property="phone_no" />
         </table>
     </context>
 </generatorConfiguration>
