@@ -16,16 +16,26 @@
     <!--加载数据库配置文件-->
     <context:property-placeholder location="classpath:mysql.properties" />
 
-    <!--配置数据源 c3p0l连接池-->
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" >
-        <property name="driverClass" value="${jdbc.driver}" />
-        <property name="jdbcUrl" value="${jdbc.url}" />
-        <property name="user" value="${jdbc.username}" />
-        <property name="password" value="${jdbc.password}" />
+    <!--配置数据源 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="${driver}" />
+        <property name="url" value="${url}" />
+        <property name="username" value="${username}" />
+        <property name="password" value="${password}" />
+        <!-- 初始化连接大小 -->
+        <property name="initialSize" value="${initialSize}"></property>
+        <!--连接池最大空闲   -->
+        <property name="maxIdle" value="${maxIdle}"></property>
+        <!--连接池最小空闲    -->
+        <property name="minIdle" value="${minIdle}"></property>
+        <!--获取连接最大等待时间    -->
+        <property name="maxWait" value="${maxWait}"></property>
+        <property name="maxActive" value="${maxActive}"></property>
     </bean>
 
     <!--配置SqlSessionFactory-->
-    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <!--加载mybatis配置文件-->
         <property name="configLocation" value="classpath:mybatis/mybatis.cfg.xml"/>
         <!--数据源-->
@@ -40,8 +50,7 @@
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!--如果需要扫描多个报下的mapper,每个包中间使用半角逗号分开-->
         <property name="basePackage" value="com.wewin.mapper" />
-        <property name="sqlSessionFactoryBeanName" value="sessionFactory" />
-        <property name="annotationClass" value="org.springframework.stereotype.Repository" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
     </bean>
 
 

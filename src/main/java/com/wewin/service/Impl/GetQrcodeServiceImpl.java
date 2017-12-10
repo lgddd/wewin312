@@ -1,13 +1,15 @@
-package com.wewin.serviceImpl;
+package com.wewin.service.Impl;
 
 import com.wewin.service.GetQrcodeService;
 import com.wewin.util.DownloadQrcode;
 import net.sf.json.JSONObject;
+import org.springframework.stereotype.Service;
+
 import java.net.URLEncoder;
 import static com.wewin.util.HttpReq.httpRequest;
 
 
-
+@Service
 public class GetQrcodeServiceImpl implements GetQrcodeService{
 
     private  String classNo;

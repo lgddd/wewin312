@@ -1,17 +1,17 @@
-package com.wewin.serviceImpl;
+package com.wewin.service.Impl;
 
 import com.wewin.entity.UserInfo;
 import com.wewin.mapper.UserInfoMapper;
 import com.wewin.service.EditUserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
-
-
-public class EditUserInfoServiceImpl implements EditUserInfoService{
+@Service
+public abstract class EditUserInfoServiceImpl implements EditUserInfoService{
 
     @Autowired
     private UserInfoMapper userInfoMapper;
+
 
     public void editUserInfo(UserInfo userInfo) {
         try {

@@ -1,4 +1,4 @@
-package com.wewin.serviceImpl;
+package com.wewin.service.Impl;
 
 import com.wewin.entity.UserInfo;
 import com.wewin.mapper.UserInfoMapper;
@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+@Service
 public class ScanQrcodeServiceImpl implements ScanQrcodeService{
 
     @Autowired
-    private UserInfoMapper userInfoMapper=null;
+    private UserInfoMapper userInfoMapper;
     @Autowired
     private UserInfo userInfo;
 
