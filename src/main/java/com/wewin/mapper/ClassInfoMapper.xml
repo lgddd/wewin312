@@ -15,7 +15,15 @@
     <result column="ssize" jdbcType="INTEGER" property="studentSize" />
     <result column="tsize" jdbcType="INTEGER" property="teacherSize" />
   </resultMap>
-
+  <resultMap id="ClassInfoResultMap" type="com.wewin.entity.ClassInfo">
+    <id column="id" jdbcType="INTEGER" property="classId" />
+    <result column="classname" jdbcType="VARCHAR" property="className" />
+    <result column="creatorid" jdbcType="VARCHAR" property="creatorid" />
+    <result column="cretime" jdbcType="VARCHAR" property="createTime" />
+    <result column="classicon" jdbcType="VARCHAR" property="classIcon" />
+    <result column="ssize" jdbcType="INTEGER" property="studentSize" />
+    <result column="tsize" jdbcType="INTEGER" property="teacherSize" />
+  </resultMap>
   <sql id="Example_Where_Clause">
     <!--
       WARNING - @mbggenerated
@@ -93,11 +101,11 @@
     id, classname, creatorid, cretime, classicon, ssize, tsize
   </sql>
   <!--通过id查找班级信息 -->
-  <select id="selectClassById" parameterType="int"  resultType="com.wewin.entity.ClassInfo">
+  <select id="selectClassById"  resultMap="ClassInfoResultMap">
     select * from class where id = #{classId}
   </select>
   <!--通过creatorid查找班级信息-->
-  <select id="selectClassByCreatorId" parameterType="String" resultMap="com.wewin.entity.ClassInfo">
+  <select id="selectClassByCreatorId" parameterType="String" resultType="com.wewin.entity.ClassInfo">
     SELECT * FROM class WHERE creatorid = #{openid}
   </select>
 
