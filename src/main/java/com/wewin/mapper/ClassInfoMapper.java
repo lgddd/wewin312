@@ -47,6 +47,15 @@ public interface ClassInfoMapper {
      *
      * @mbggenerated Wed Dec 13 20:47:36 CST 2017
      */
+    /**
+     * 查找加入的班级
+    *
+    */
+
+    List<ClassInfo>  selectJoinClass(String openid);
+
+
+
     int insertSelective(ClassInfo record);
 
     /**
@@ -68,7 +77,8 @@ public interface ClassInfoMapper {
     /**
      * 根据openid查询班级信息
      */
-    List<Map<String,Object>> selectClassByCreatorId(String openid);
+    List<ClassInfo> selectClassByCreatorId(@Param("openid") String openid);
+
 
     ClassInfo selectByPrimaryKey(Integer classId);
 

@@ -1,5 +1,6 @@
 package com.wewin.util;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.Serializable;
@@ -18,9 +19,13 @@ public class JSONResult implements Serializable {
     public JSONResult() {
     }
 
-    public JSONResult(String error){
-        state = ERROR;
-        this.message = error;
+    public JSONResult(boolean b,String message){
+
+        if(b == Boolean.FALSE){state = ERROR;}
+        else{
+            state = SUCCESS;
+        }
+        this.message = message;
     }
 
     public JSONResult(Object data){
@@ -64,8 +69,8 @@ public class JSONResult implements Serializable {
 
     @Override
     public String toString() {
-        JSONObject jsonObject = JSONObject.fromObject(data);
-        String  dataString =jsonObject.toString();
+        JSONArray jsonArray = JSONArray.fromObject(data);
+        String  dataString =jsonArray.toString();
         return "JSONResult [state=" + state + ", message=" + message + ", data=" + dataString + "]";
     }
 

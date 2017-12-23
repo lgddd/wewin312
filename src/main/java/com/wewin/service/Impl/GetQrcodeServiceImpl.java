@@ -38,11 +38,11 @@ public class GetQrcodeServiceImpl implements GetQrcodeService{
 
 
 
-    public String getQrcodeUrl(){
+    public String getQrcodeUrl(String classId){
         String ticket=getTicket();
         String URL="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+ URLEncoder.encode(ticket);
-        DownloadQrcode.sendGetAndSaveFile(URL,"D:\\"+classNo+".jpg");
-        String Qrcodeurl="D:\\"+classNo+".jpg";
+        DownloadQrcode.sendGetAndSaveFile(URL,"D:\\"+classId+".jpg");
+        String Qrcodeurl="D:\\"+classId+".jpg";
         return Qrcodeurl;
     }
 

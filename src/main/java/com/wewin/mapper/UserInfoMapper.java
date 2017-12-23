@@ -3,6 +3,7 @@ package com.wewin.mapper;
 import com.wewin.entity.UserInfo;
 import com.wewin.entity.UserInfoExample;
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

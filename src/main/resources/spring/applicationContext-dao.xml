@@ -13,16 +13,22 @@
 	http://www.springframework.org/schema/tx
 	http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <!--加载数据库配置文件-->
-    <context:property-placeholder location="classpath:mysql.properties" />
-
+    <!--加载数据库配置文件
+    <context:property-placeholder location="classpath:mysql.properties" />-->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath*:mysql.properties</value>
+            </list>
+        </property>
+    </bean>
     <!--配置数据源 -->
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
         <property name="driverClassName" value="${driver}" />
         <property name="url" value="${url}" />
         <property name="username" value="${username}" />
-        <property name="password" value="${password}" />
+        <property name="password" value="root" />
         <!-- 初始化连接大小 -->
         <property name="initialSize" value="${initialSize}"></property>
         <!--连接池最大空闲   -->

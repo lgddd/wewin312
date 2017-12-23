@@ -2,6 +2,9 @@ package com.wewin.service.Impl;
 import com.wewin.entity.ClassInfo;
 import com.wewin.mapper.ClassInfoMapper;
 import com.wewin.service.ClassInfoService;
+import com.wewin.service.GetQrcodeService;
+import com.wewin.util.JSONResult;
+import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +18,22 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
     private ClassInfo classInfo;
     @Autowired
     private ClassInfoMapper classInfoMapper;
-
+    @Autowired
+    private GetQrcodeService getQrcodeService;
     /**
      * 根据班级id查询班级信息
      * @param id
      * @return
      */
-    public ClassInfo  getClassInfo(Integer id) {
-        try{
-            classInfo = classInfoMapper.selectClassById(id);
-            System.out.println(classInfo.toString());
-        }catch (Exception e){
-            e.printStackTrace();
+    public JSONResult  getClassInfo(Integer id) {
+        ClassInfo classinfo= classInfoMapper.selectClassById(id);
+        JSONResult result;
+        if(classinfo!=null){
+            result = new JSONResult(classinfo);
+        }else{
+            result = new JSONResult(Boolean.FALSE,"not found classinfo");
         }
-        return classInfo;
+        return result;
 
     }
 
@@ -37,12 +42,69 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      * @param openid
      * @return
      */
-   public List<ClassInfo> getMyClassesInfo(String openid){
-       List<Map<String,Object>> list = classInfoMapper.selectClassByCreatorId(openid);
-       for(Map<String,Object> row:list){
-           System.out.println(row);
-
+   public JSONResult getMyClassesInfo(String openid){
+       List<ClassInfo> list = classInfoMapper.selectClassByCreatorId(openid);
+       JSONResult result;
+       if(list!=null){
+           result = new JSONResult(list);
+       }else{
+           result = new JSONResult(Boolean.FALSE,"not found list of classinfo");
        }
-       return null;
+       return result;
    }
+
+
+
+    /**
+     * 根据openid查询加入的班级们
+     * @param openid
+     * @return
+     */
+    public JSONResult getJoinClassesInfo(String openid){
+        List<ClassInfo> list = classInfoMapper.selectJoinClass(openid);
+        JSONResult result;
+        if(list!=null){
+            result = new JSONResult(list);
+        }else{
+            result = new JSONResult(Boolean.FALSE,"not found list of classinfo");
+        }
+        return result;
+
+    }
+
+
+    /**
+     * 创建新班级 创建成功返回班级二维码URL
+     * @param
+     * @return
+     */
+   public JSONResult addClass(ClassInfo newClassInfo){
+       JSONResult result;
+       if(classInfoMapper.insert(newClassInfo)!=0){
+
+           String qrcodeURL = getQrcodeService.getQrcodeUrl(newClassInfo.getClassId().toString());
+           result = new JSONResult(Boolean.TRUE,"add success, qrCodeurl:"+qrcodeURL);
+       }else {
+           result = new JSONResult(Boolean.FALSE,"add failed");
+       }
+        return result;
+   }
+
+    /**
+     * 更新班级信息
+     * @param
+     * @return
+     */
+    public JSONResult updateClass(Integer classid, String classname){
+        JSONResult result;
+        ClassInfo newClassInfo = classInfoMapper.selectClassById(classid);
+        newClassInfo.setClassName(classname);
+        if(classInfoMapper.updateByPrimaryKeySelective(newClassInfo)!=0){
+            result = new JSONResult(Boolean.TRUE,"update success");
+        }else {
+            result = new JSONResult(Boolean.FALSE,"update failed");
+        }
+        return result;
+    }
 }
+
