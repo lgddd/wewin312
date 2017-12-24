@@ -35,10 +35,10 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/findgroups" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void findGroups(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult findGroups(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String classId=request.getParameter("classId");
-        JSONResult result = groupInfoService. getClassGroupsInfo(classId);
-        response.getWriter().write(result.toString());
+        return groupInfoService. getClassGroupsInfo(classId);
+
 
     }
     /**
@@ -47,10 +47,10 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/findusers" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void findGroupUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult findGroupUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String groupId=request.getParameter("groupId");
-        JSONResult result = groupInfoService.findGroupMembers(Integer.parseInt(groupId));
-        response.getWriter().write(result.toString());
+        return groupInfoService.findGroupMembers(Integer.parseInt(groupId));
+
 
 
 
@@ -61,7 +61,7 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/addgroup" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void addGroup(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult addGroup(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String groupName=request.getParameter("groupname");
         String groupAuth=request.getParameter("groupauth");
@@ -72,9 +72,7 @@ public class GroupController {
             c.setGroupName(groupName);
             c.setMemberSize(0);
             c.setGroupAuth(Integer.parseInt(groupAuth));
-            JSONResult result = groupInfoService.addGroup(c);
-            response.getWriter().write(result.toString());
-
+            return groupInfoService.addGroup(c);
     }
 
 
@@ -86,7 +84,7 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/deletegroup" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void deleteGroup(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public JSONResult deleteGroup(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String[] groupIds=request.getParameterValues("groupIdList");
         for(String groupId:groupIds){
@@ -94,7 +92,7 @@ public class GroupController {
             groupInfoService.deleteGroup(Integer.parseInt(groupId));
         }
 
-        response.getWriter().write(new JSONResult(Boolean.TRUE,"delete groups success").toString());
+        return(new JSONResult(Boolean.TRUE,"delete groups success"));
 
     }
 
@@ -104,14 +102,11 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/addgroup_members" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void addGroupMembers(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult addGroupMembers(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String groupId=request.getParameter("groupId");
         String[] openids = request.getParameterValues("openIdList");
-       // String groupId = "1";
-        //String[] openids = {"abc","acd"};
-        JSONResult result = groupInfoService. addGroupMembers(Integer.parseInt(groupId),openids);
+        return groupInfoService. addGroupMembers(Integer.parseInt(groupId),openids);
 
-        response.getWriter().write(result.toString());
 
 
 
@@ -122,13 +117,10 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/deletemember" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void deleteGroupMember(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public JSONResult deleteGroupMember(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String groupId=request.getParameter("groupId");
         String openid = request.getParameter("delete_openId");
-       // groupId ="1";
-       // openid = "acd";
-        JSONResult result = groupInfoService. deleteGroupMember(Integer.parseInt(groupId),openid);
-        response.getWriter().write(result.toString());
+        return groupInfoService. deleteGroupMember(Integer.parseInt(groupId),openid);
     }
 
 
@@ -141,7 +133,7 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/findmember_ingroup" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void findMemberInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult findMemberInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String openid = request.getParameter("openid");
         JSONResult result;
         userInfo = userInfoService.getUserInfo(openid);
@@ -150,7 +142,7 @@ public class GroupController {
         }else {
             result = new JSONResult(Boolean.FALSE,"not found userinfo");
         }
-        response.getWriter().write(result.toString());
+       return result;
 
 
     }

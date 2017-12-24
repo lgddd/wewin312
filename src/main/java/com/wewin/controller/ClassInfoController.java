@@ -47,10 +47,9 @@ public class ClassInfoController {
 	 * @return
        */
     @RequestMapping(value = "/detail/findclass" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void showClassInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult showClassInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String openId=request.getParameter("classid");
-        JSONResult result = classInfoService.getClassInfo(Integer.parseInt(openId));
-        response.getWriter().write(result.toString());
+       return classInfoService.getClassInfo(Integer.parseInt(openId));
     }
     /**
      * 查找创建的班级的信息
@@ -58,10 +57,10 @@ public class ClassInfoController {
      * @return
      */
     @RequestMapping(value = "/setting/findclass" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void showMyClassInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult showMyClassInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String openId=request.getParameter("classid");
-        JSONResult result = classInfoService.getClassInfo(Integer.parseInt(openId));
-        response.getWriter().write(result.toString());
+        return classInfoService.getClassInfo(Integer.parseInt(openId));
+
     }
 
     /**
@@ -70,12 +69,12 @@ public class ClassInfoController {
      * @return
      */
     @RequestMapping(value = "/setting/update" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void editMyClassInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult editMyClassInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String classname=request.getParameter("classname");
         String classId=request.getParameter("classId");
-        JSONResult result = classInfoService.updateClass(Integer.parseInt(classId),classname);
-        response.getWriter().write(result.toString());
+        return classInfoService.updateClass(Integer.parseInt(classId),classname);
+
     }
 
     /**
@@ -84,10 +83,9 @@ public class ClassInfoController {
      * @return
      */
     @RequestMapping(value = "/findclasses_create" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void findMyClassesInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public   JSONResult findMyClassesInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String openId=request.getParameter("openid");
-        JSONResult result = classInfoService.getMyClassesInfo(openId);
-        response.getWriter().write(result.toString());
+        return classInfoService.getMyClassesInfo(openId);
     }
 
     /**
@@ -96,10 +94,10 @@ public class ClassInfoController {
      * @return
      */
     @RequestMapping(value = "/findclasses_join" ,method={RequestMethod.GET,RequestMethod.POST})
-    public void findClassesInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public JSONResult findClassesInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String openId=request.getParameter("openid");
-        JSONResult result = classInfoService.getJoinClassesInfo(openId);
-        response.getWriter().write(result.toString());
+        return  classInfoService.getJoinClassesInfo(openId);
+
 
     }
 
@@ -112,7 +110,7 @@ public class ClassInfoController {
      */
 
     @RequestMapping(value = "/new/addclass" ,method={RequestMethod.GET,RequestMethod.POST})
-    public void createClasses(HttpServletRequest request, @RequestParam(value = "file", required = false) MultipartFile file,HttpServletResponse response) throws IOException
+    public JSONResult createClasses(HttpServletRequest request, @RequestParam(value = "file", required = false) MultipartFile file,HttpServletResponse response) throws IOException
     { ClassInfo newClassInfo = new ClassInfo();
         if (!file.isEmpty()) {
 
@@ -145,8 +143,8 @@ public class ClassInfoController {
 
     }
 
-        JSONResult result =  classInfoService.addClass(newClassInfo);
-        response.getWriter().write(result.toString());
+        return  classInfoService.addClass(newClassInfo);
+
     }
 
     /**
@@ -171,12 +169,15 @@ public class ClassInfoController {
         //String request_path = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
         //String img_name = request_path+"/pic_file/"+type+picName+".jpg";
         String tomcat_path = System.getProperty("user.dir");
+        System.out.println("tomcat_path"+tomcat_path);
         String bin_path = tomcat_path.substring(tomcat_path.lastIndexOf("\\")+1,tomcat_path.length());
         String img_name;
         if(("bin").equals(bin_path)){
             img_name = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\pic_file\\"+type+picName+".jpg";
+            System.out.println("image_path"+img_name);
         }else{
             img_name = tomcat_path+"\\webapps"+"\\pic_file\\"+type+picName+".jpg";
+            System.out.println("image_path"+img_name);
         }
         try {
             fis = new FileInputStream( img_name);
@@ -197,15 +198,15 @@ public class ClassInfoController {
 
 
     @RequestMapping(value = "/test2" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  void testClassesInfo2(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public   JSONResult testClassesInfo2(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ClassInfo newClassInfo = new ClassInfo();
         newClassInfo.setClassName("test");
         newClassInfo.setCreatorid("abc");
         newClassInfo.setCreateTime(new Date().toString());
         newClassInfo.setStudentSize(0);
         newClassInfo.setTeacherSize(1);
-        JSONResult result =  classInfoService.addClass(newClassInfo);
-        response.getWriter().write(result.toString());
+        return  classInfoService.addClass(newClassInfo);
+
     }
 
 
