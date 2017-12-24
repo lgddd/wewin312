@@ -25,11 +25,11 @@ public class GetQrcodeServiceImpl implements GetQrcodeService{
     }
 
 
-    public String getTicket(){
+    public String getTicket(String classId){
         String TOKEN=getAuthtoken();
         String URL="https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token="+TOKEN;
-        classNo=""+System.currentTimeMillis();
-        String PARAM="{\"expire_seconds\": 2592000, \"action_name\": \"QR_STR_SCENE\", \"action_info\": {\"scene\": {\"scene_str\": "+classNo+"\"}}}";
+        //classNo=""+System.currentTimeMillis();
+        String PARAM="{\"expire_seconds\": 2592000, \"action_name\": \"QR_STR_SCENE\", \"action_info\": {\"scene\": {\"scene_str\": "+classId+"\"}}}";
         JSONObject jsonObject = httpRequest(URL, "POST", PARAM);
         String ticket=jsonObject.getString("ticket");
         return ticket;
@@ -39,10 +39,18 @@ public class GetQrcodeServiceImpl implements GetQrcodeService{
 
 
     public String getQrcodeUrl(String classId){
-        String ticket=getTicket();
+        String ticket=getTicket(classId);
         String URL="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+ URLEncoder.encode(ticket);
-        DownloadQrcode.sendGetAndSaveFile(URL,"D:\\"+classId+".jpg");
-        String Qrcodeurl="D:\\"+classId+".jpg";
+        String tomcat_path = System.getProperty("user.dir");
+        String bin_path = tomcat_path.substring(tomcat_path.lastIndexOf("\\")+1,tomcat_path.length());
+        String pic_path;
+        if(("bin").equals(bin_path)){
+            pic_path = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\pic_file\\qrcode\\";
+        }else{
+            pic_path = tomcat_path+"\\webapps"+"\\pic_file\\qrcode\\";
+        }
+        DownloadQrcode.sendGetAndSaveFile(URL,pic_path+classId+".jpg");
+        String Qrcodeurl=pic_path+classId+".jpg";
         return Qrcodeurl;
     }
 

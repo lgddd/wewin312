@@ -15,7 +15,12 @@
       <version>2.6</version>
       <scope>provided</scope>
     </dependency>
-
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.3.1</version>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -101,6 +106,14 @@
       <version>1.2.17</version>
     </dependency>
 
+    <!-- jackson-core -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.6.1</version>
+    </dependency>
+
+
     <!--mybatis-->
     <dependency>
       <groupId>org.mybatis</groupId>
@@ -132,6 +145,13 @@
     </dependency>
 
 
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.3.1</version>
+    </dependency>
+
     <!--Mysql数据库驱动-->
     <dependency>
       <groupId>mysql</groupId>
@@ -153,10 +173,11 @@
       <classifier>jdk15</classifier>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.1</version>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.4</version>
     </dependency>
 
     <dependency>

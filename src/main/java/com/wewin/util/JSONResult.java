@@ -69,8 +69,20 @@ public class JSONResult implements Serializable {
 
     @Override
     public String toString() {
-        JSONArray jsonArray = JSONArray.fromObject(data);
-        String  dataString =jsonArray.toString();
+
+        JSONArray jsonArray = null;
+        String  dataString = "";
+        try{
+             jsonArray = JSONArray.fromObject(data);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        if(null != jsonArray){
+            dataString =jsonArray.toString();
+        }else{
+            dataString = data.toString();
+        }
         return "JSONResult [state=" + state + ", message=" + message + ", data=" + dataString + "]";
     }
 

@@ -80,10 +80,11 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      */
    public JSONResult addClass(ClassInfo newClassInfo){
        JSONResult result;
-       if(classInfoMapper.insert(newClassInfo)!=0){
-
+       int param = classInfoMapper.insert(newClassInfo);
+       System.out.println(param);
+       if(param!=0){
            String qrcodeURL = getQrcodeService.getQrcodeUrl(newClassInfo.getClassId().toString());
-           result = new JSONResult(Boolean.TRUE,"add success, qrCodeurl:"+qrcodeURL);
+           result = new JSONResult(Boolean.TRUE,"add success,classid:"+newClassInfo.getClassId()+"QrcodeURL"+qrcodeURL);
        }else {
            result = new JSONResult(Boolean.FALSE,"add failed");
        }
