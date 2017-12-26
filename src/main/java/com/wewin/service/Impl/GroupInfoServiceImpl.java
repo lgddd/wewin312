@@ -52,7 +52,17 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         return result;
     };
 
-
+    /**
+     * 创建班级时新建默认分组 所有成员
+     */
+    public void addAllMemberGroup(int classId){
+        GroupInfo c = new GroupInfo();
+        c.setClassId(classId);
+        c.setGroupName("所有成员");
+        c.setMemberSize(1);
+        c.setGroupAuth(0);
+        addGroup(c);
+    }
 
     /**
      * 删除分组
@@ -74,17 +84,24 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      */
     public JSONResult addGroupMembers(Integer groupId,String[] openids){
 
-        GroupMemberLink link = new GroupMemberLink();
+
         JSONResult result = null;
         List<GroupMemberLink> links = new ArrayList<GroupMemberLink>();
-        for (String id:openids){
-           link.setGroupid(groupId);
-           link.setUserid(id);
-           links.add(link);
-        }
 
+        for (String id:openids){
+            GroupMemberLink link = new GroupMemberLink();
+            link.setGroupid(groupId);
+            link.setUserid(id);
+            links.add(link);
+        }
+        int size = links.size();
         if(groupInfoMapper.insertmenbers(links)!=0){
+
+            GroupInfo groupInfo = getClassGroupsInfo(groupId);
+            groupInfo.setMemberSize(groupInfo.getMemberSize()+size);
+            groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
            result = new JSONResult(Boolean.TRUE,"add groupmember success");
+
         }else {
             result = new JSONResult(Boolean.FALSE,"add groupmember failed");
         }
@@ -104,6 +121,9 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         link.setUserid(openid);
         link.setGroupid(groupId);
         if(groupInfoMapper.deletemember(link)!=0){
+            GroupInfo groupInfo = getClassGroupsInfo(groupId);
+            groupInfo.setMemberSize(groupInfo.getMemberSize()-1);
+            groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
             result = new JSONResult(Boolean.TRUE,"delete groupmember success");
         }else {
             result = new JSONResult(Boolean.FALSE,"delete groupmember failed");
@@ -140,5 +160,11 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         return result;
 
     }
-
+    /**
+     *
+     * 查找小组信息
+     */
+    public GroupInfo  getClassGroupsInfo(int groupid){
+       return  groupInfoMapper.selectByPrimaryKey(groupid);
+    }
 }

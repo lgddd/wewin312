@@ -59,5 +59,13 @@ public interface GroupInfoService {
     JSONResult findGroupMembers(Integer groupId);
 
 
-
+    /**
+     * 创建班级时新建默认分组 所有成员
+     */
+    void addAllMemberGroup(int classId);
+    /**
+     *
+     * 查找小组信息
+     */
+    GroupInfo  getClassGroupsInfo(int groupid);
 }

@@ -57,6 +57,7 @@ public class GroupController {
     }
     /**
      * 新增分组
+     * 权限：0 所有成员 1老师 2助教 3用户自定义分组
      * @param
      * @return
      */
@@ -66,7 +67,6 @@ public class GroupController {
         String groupName=request.getParameter("groupname");
         String groupAuth=request.getParameter("groupauth");
         String classId=request.getParameter("classId");
-
         GroupInfo c = new GroupInfo();
             c.setClassId(Integer.parseInt(classId));
             c.setGroupName(groupName);

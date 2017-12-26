@@ -69,11 +69,37 @@ public class ClassInfoController {
      * @return
      */
     @RequestMapping(value = "/setting/update" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  JSONResult editMyClassInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  JSONResult editMyClassInfo(HttpServletRequest request, @RequestParam(value = "file", required = false) MultipartFile file,HttpServletResponse response) throws IOException {
+        String iconpath = null;
+        if (!file.isEmpty()) {
 
+            String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+            // 获得文件类型（可以判断如果不是图片，禁止上传）
+            String contentType = file.getContentType();
+            // 获得文件后缀名称
+            String suffix = contentType.substring(contentType.indexOf("/") + 1);
+
+            String tomcat_path = System.getProperty("user.dir");
+            String bin_path = tomcat_path.substring(tomcat_path.lastIndexOf("\\")+1,tomcat_path.length());
+            //保存路径
+            String path;
+            if(("bin").equals(bin_path)){
+                path = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\pic_file\\classicon\\"+uuid+".jpg";
+            }else{
+                path = tomcat_path+"\\webapps"+"\\pic_file\\classicon\\"+uuid+".jpg";
+            }
+
+
+            file.transferTo(new File(path));
+            iconpath = uuid + "." + suffix;
+
+        }
         String classname=request.getParameter("classname");
         String classId=request.getParameter("classId");
-        return classInfoService.updateClass(Integer.parseInt(classId),classname);
+
+        return classInfoService.updateClass(Integer.parseInt(classId),classname, iconpath);
+
+
 
     }
 
@@ -112,6 +138,7 @@ public class ClassInfoController {
     @RequestMapping(value = "/new/addclass" ,method={RequestMethod.GET,RequestMethod.POST})
     public JSONResult createClasses(HttpServletRequest request, @RequestParam(value = "file", required = false) MultipartFile file,HttpServletResponse response) throws IOException
     { ClassInfo newClassInfo = new ClassInfo();
+        String iconpath = "";
         if (!file.isEmpty()) {
 
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
@@ -132,17 +159,17 @@ public class ClassInfoController {
 
 
         file.transferTo(new File(path));
+        iconpath = uuid + "." + suffix;
+
+    }
         String className=request.getParameter("classname");
         String openId=request.getParameter("creatorid");
-        newClassInfo.setClassIcon(uuid + "." + suffix);
+        newClassInfo.setClassIcon(iconpath);
         newClassInfo.setCreateTime(new Date().toString());
         newClassInfo.setCreatorid(openId);
         newClassInfo.setClassName(className);
         newClassInfo.setStudentSize(0);
         newClassInfo.setTeacherSize(1);
-
-    }
-
         return  classInfoService.addClass(newClassInfo);
 
     }
@@ -204,7 +231,7 @@ public class ClassInfoController {
         newClassInfo.setCreatorid("abc");
         newClassInfo.setCreateTime(new Date().toString());
         newClassInfo.setStudentSize(0);
-        newClassInfo.setTeacherSize(1);
+        newClassInfo.setTeacherSize(0);
         return  classInfoService.addClass(newClassInfo);
 
     }

@@ -40,5 +40,5 @@ public interface ClassInfoService {
      * @return
      */
 
-    JSONResult updateClass(Integer classid, String classname);
+    JSONResult updateClass(Integer classid, String classname,String iconpath);
 }
