@@ -26,8 +26,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * @return
      */
 
-    public JSONResult  getClassGroupsInfo(String classid){
-        List<GroupInfo> list = groupInfoMapper.selectByClassId(Integer.parseInt(classid));
+    public JSONResult  getClassGroupsInfo(Integer classid){
+        List<GroupInfo> list = groupInfoMapper.selectByClassId(classid);
         JSONResult result;
         if(list!=null){
             result = new JSONResult(list);
@@ -37,6 +37,18 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         return result;
     }
 
+
+    /**
+     * 删除班级下的所有分组
+     * @param classid
+     * @return
+     */
+    public void deleteClassGroups(Integer classid) {
+        List<GroupInfo> list = groupInfoMapper.selectByClassId(classid);
+        for (GroupInfo group : list) {
+            groupInfoMapper.deleteGroup(group.getGroupId());
+        }
+    }
     /**
      * 新建分组
      * @param newGroup
@@ -55,13 +67,26 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     /**
      * 创建班级时新建默认分组 所有成员
      */
-    public void addAllMemberGroup(int classId){
-        GroupInfo c = new GroupInfo();
-        c.setClassId(classId);
-        c.setGroupName("所有成员");
-        c.setMemberSize(1);
-        c.setGroupAuth(0);
-        addGroup(c);
+    public void adddefaultMemberGroup(Integer classId){
+
+        GroupInfo allMemberGroup = new GroupInfo();
+        allMemberGroup.setClassId(classId);
+        allMemberGroup.setGroupName("所有成员");
+        allMemberGroup.setMemberSize(1);
+        allMemberGroup.setGroupAuth(0);
+        addGroup(allMemberGroup);
+        GroupInfo TeacherGroup = new GroupInfo();
+        TeacherGroup.setClassId(classId);
+        TeacherGroup.setGroupName("老师");
+        TeacherGroup.setMemberSize(0);
+        TeacherGroup.setGroupAuth(1);
+        addGroup(TeacherGroup);
+        GroupInfo assistantGroup = new GroupInfo();
+        assistantGroup.setClassId(classId);
+        assistantGroup.setGroupName("助教");
+        assistantGroup.setMemberSize(0);
+        assistantGroup.setGroupAuth(2);
+        addGroup(assistantGroup);
     }
 
     /**
@@ -97,7 +122,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         int size = links.size();
         if(groupInfoMapper.insertmenbers(links)!=0){
 
-            GroupInfo groupInfo = getClassGroupsInfo(groupId);
+            GroupInfo groupInfo = getGroupInfo(groupId);
             groupInfo.setMemberSize(groupInfo.getMemberSize()+size);
             groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
            result = new JSONResult(Boolean.TRUE,"add groupmember success");
@@ -121,7 +146,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         link.setUserid(openid);
         link.setGroupid(groupId);
         if(groupInfoMapper.deletemember(link)!=0){
-            GroupInfo groupInfo = getClassGroupsInfo(groupId);
+            GroupInfo groupInfo = getGroupInfo(groupId);
             groupInfo.setMemberSize(groupInfo.getMemberSize()-1);
             groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
             result = new JSONResult(Boolean.TRUE,"delete groupmember success");
@@ -164,7 +189,53 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      *
      * 查找小组信息
      */
-    public GroupInfo  getClassGroupsInfo(int groupid){
-       return  groupInfoMapper.selectByPrimaryKey(groupid);
+    public GroupInfo  getGroupInfo(int groupid){
+
+        return  groupInfoMapper.selectByPrimaryKey(groupid);
     }
+
+    /**
+     * 小组新增一个成员
+     */
+    public  int addmember(GroupMemberLink link){
+
+        if(groupInfoMapper.insertmenber(link)!=0){
+
+            GroupInfo groupInfo = getGroupInfo(link.getGroupid());
+            groupInfo.setMemberSize(groupInfo.getMemberSize()+1);
+            groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
+           return 1;
+
+        }else return 0;
+
+    }
+
+    /**
+     * 查找小组以及小组中的成员
+     *
+     * @param classId
+     * @return
+     */
+    @Override
+    public JSONResult findGroupAndMembers(Integer classId) {
+        JSONResult result;
+        try {
+            result = new JSONResult(groupInfoMapper.selectGroupAndMembers(classId));
+        } catch (Exception e) {
+            result = new JSONResult(1, e);
+        }
+        return result;
+    }
+
+    /**查找班级的所有成员组
+     * */
+    public Integer findAllMemberGroup(Integer classId){
+        List<GroupInfo> list = groupInfoMapper.selectallmembergroup(classId);
+        Integer groupid = null;
+        for(GroupInfo groupInfo:list){
+            groupid = groupInfo.getGroupId();
+        }
+        return groupid;
+    }
+
 }

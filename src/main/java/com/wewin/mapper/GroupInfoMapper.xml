@@ -14,6 +14,19 @@
     <result column="auth" property="groupAuth" jdbcType="INTEGER" />
   </resultMap>
 
+
+
+  <!-- 包含成员的组 -->
+  <resultMap id="GroupMembersResultMap" type="com.wewin.entity.GroupMembers">
+    <id column="id" property="groupId" jdbcType="INTEGER" />
+    <result column="groupname" property="groupName" jdbcType="VARCHAR" />
+    <result column="classid" property="classId" jdbcType="INTEGER" />
+    <result column="memsize" property="memberSize" jdbcType="INTEGER" />
+    <result column="auth" property="groupAuth" jdbcType="INTEGER" />
+    <collection property="users" resultMap="MemberResultMap"></collection>
+  </resultMap>
+
+
   <resultMap id="MemberResultMap" type="com.wewin.entity.UserInfo" >
     <!--
       WARNING - @mbggenerated
@@ -21,10 +34,10 @@
       This element was generated on Sun Dec 10 00:54:45 GMT+08:00 2017.
     -->
     <id column="openid" property="openid" jdbcType="VARCHAR" />
-    <result column="nick_name" property="nickname" jdbcType="VARCHAR" />
+    <result column="nickname" property="nickname" jdbcType="VARCHAR" />
     <result column="school" property="school" jdbcType="VARCHAR" />
-    <result column="student_no" property="student_no" jdbcType="VARCHAR" />
-    <result column="phone_no" property="phone_no" jdbcType="VARCHAR" />
+    <result column="studentno" property="studentno" jdbcType="VARCHAR" />
+    <result column="phoneno" property="phoneno" jdbcType="VARCHAR" />
   </resultMap>
 
 
@@ -106,6 +119,7 @@
     -->
     id, groupname, classid, memsize, auth
   </sql>
+
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.wewin.entity.GroupInfoExample" >
     <!--
       WARNING - @mbggenerated
@@ -126,6 +140,7 @@
       order by ${orderByClause}
     </if>
   </select>
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--
       WARNING - @mbggenerated
@@ -149,9 +164,38 @@
   <!--通过groupid查找全部小组成员-->
   <select id="selectGroupMembers"  resultMap="MemberResultMap">
        SELECT * FROM yhxx WHERE openid IN (SELECT openid FROM group_member WHERE groupid = #{groupid})
-    </select>
+  </select>
 
+  <!--查找该班级 所有成员 组id-->
 
+  <select id="selectallmembergroup" resultMap="BaseResultMap">
+      SELECT * FROM groupinfo WHERE ((classid=#{classid}) AND (auth = 0))
+  </select>
+
+  <select id="selectGroupAndMembers" parameterType="java.lang.Integer" resultMap="GroupMembersResultMap">
+    SELECT
+    gc.id,
+    gc.classid,
+    gc.groupname,
+    gc.memsize,
+    gc.auth,
+    yhxx.*
+    FROM
+    (
+    SELECT
+    g.id,
+    g.classid,
+    g.groupname,
+    g.memsize,
+    g.auth
+    FROM
+    groupinfo AS g
+    WHERE
+    classid = #{classId,jdbcType=INTEGER}
+    ) AS gc
+    LEFT JOIN group_member AS gm ON gc.id = gm.groupid
+    LEFT JOIN yhxx ON gm.openid = yhxx.openid
+  </select>
 
     <!--删除小组单个成员-->
   <delete id="deletemember" parameterType="com.wewin.entity.GroupMemberLink" >
@@ -223,6 +267,19 @@
 
   </insert>
 
+
+
+
+  <!--小组增加新成员-->
+  <insert id="insertmenber" parameterType="com.wewin.entity.GroupMemberLink">
+
+    insert into group_member(openid, groupid)
+    values (#{userid},#{groupid})
+
+  </insert>
+
+
+
   <insert id="insert" parameterType="com.wewin.entity.GroupInfo" >
     <!--
       WARNING - @mbggenerated
@@ -234,6 +291,7 @@
     values (#{groupName,jdbcType=VARCHAR}, #{classId,jdbcType=INTEGER},
       #{memberSize,jdbcType=INTEGER}, #{groupAuth,jdbcType=INTEGER})
   </insert>
+
   <insert id="insertSelective" parameterType="com.wewin.entity.GroupInfo" >
     <!--
       WARNING - @mbggenerated
@@ -276,13 +334,6 @@
       </if>
     </trim>
   </insert>
-
-
-
-
-
-
-
 
 
   <select id="countByExample" parameterType="com.wewin.entity.GroupInfoExample" resultType="java.lang.Integer" >

@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserInfoServiceImpl implements UserInfoService{
+public class UserInfoServiceImpl implements UserInfoService {
+
 
     @Autowired
-    private UserInfo userInfo;
-    @Autowired
     private UserInfoMapper userInfoMapper;
-    public UserInfo getUserInfo(String openid){
+    public UserInfo GetUserInfo(String openid){
+        UserInfo userInfo=new UserInfo();
         try{
             userInfo=userInfoMapper.selectByPrimaryKey(openid);
         }catch (Exception e){
@@ -21,6 +21,12 @@ public class UserInfoServiceImpl implements UserInfoService{
         }
         return userInfo;
     }
-
+    public void UpdateUserInfo(UserInfo userInfo){
+        try{
+            userInfoMapper.updateByPrimaryKeySelective(userInfo);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
 }

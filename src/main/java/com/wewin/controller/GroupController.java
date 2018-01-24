@@ -4,6 +4,7 @@ package com.wewin.controller;
 import com.wewin.entity.GroupInfo;
 import com.wewin.entity.UserInfo;
 import com.wewin.service.GroupInfoService;
+import com.wewin.service.Impl.UserInfoServiceImpl;
 import com.wewin.service.UserInfoService;
 import com.wewin.util.JSONResult;
 import net.sf.json.JSON;
@@ -23,20 +24,17 @@ public class GroupController {
 
     @Autowired
     private GroupInfoService groupInfoService;
-    @Autowired
-    private UserInfoService userInfoService;
+
     @Autowired
     private GroupInfo groupInfo;
-    @Autowired
-    private UserInfo userInfo;
+
     /**
      * 查找该班级所有分组
      * @param
      * @return
      */
     @RequestMapping(value = "/findgroups" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  JSONResult findGroups(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String classId=request.getParameter("classId");
+    public  JSONResult findGroups(Integer classId) throws IOException {
         return groupInfoService. getClassGroupsInfo(classId);
 
 
@@ -47,9 +45,8 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/findusers" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  JSONResult findGroupUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String groupId=request.getParameter("groupId");
-        return groupInfoService.findGroupMembers(Integer.parseInt(groupId));
+    public  String findGroupUsers(Integer groupId) throws IOException {
+        return groupInfoService.findGroupMembers(groupId).toString();
 
 
 
@@ -57,21 +54,17 @@ public class GroupController {
     }
     /**
      * 新增分组
-     * 权限：0 所有成员 1老师 2助教 3用户自定义分组
+     * 权限：默认为普通组9 所有成员0 创建者1 老师2 助教3
      * @param
      * @return
      */
     @RequestMapping(value = "/addgroup" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  JSONResult addGroup(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        String groupName=request.getParameter("groupname");
-        String groupAuth=request.getParameter("groupauth");
-        String classId=request.getParameter("classId");
+    public  JSONResult addGroup(String groupName,Integer classId) throws IOException {
         GroupInfo c = new GroupInfo();
-            c.setClassId(Integer.parseInt(classId));
+            c.setClassId(classId);
             c.setGroupName(groupName);
             c.setMemberSize(0);
-            c.setGroupAuth(Integer.parseInt(groupAuth));
+            c.setGroupAuth(9);
             return groupInfoService.addGroup(c);
     }
 
@@ -84,10 +77,8 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/deletegroup" ,method={RequestMethod.GET,RequestMethod.POST})
-    public JSONResult deleteGroup(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        String[] groupIds=request.getParameterValues("groupIdList");
-        for(String groupId:groupIds){
+    public JSONResult deleteGroup(String[] groupIdList) throws IOException {
+        for(String groupId:groupIdList){
             groupInfoService.deleteGroupMembers(Integer.parseInt(groupId));
             groupInfoService.deleteGroup(Integer.parseInt(groupId));
         }
@@ -102,10 +93,8 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/addgroup_members" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  JSONResult addGroupMembers(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String groupId=request.getParameter("groupId");
-        String[] openids = request.getParameterValues("openIdList");
-        return groupInfoService. addGroupMembers(Integer.parseInt(groupId),openids);
+    public  JSONResult addGroupMembers(Integer groupId, String[] openIdList) throws IOException {
+        return groupInfoService. addGroupMembers(groupId,openIdList);
 
 
 
@@ -117,10 +106,8 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/deletemember" ,method={RequestMethod.GET,RequestMethod.POST})
-    public JSONResult deleteGroupMember(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String groupId=request.getParameter("groupId");
-        String openid = request.getParameter("delete_openId");
-        return groupInfoService. deleteGroupMember(Integer.parseInt(groupId),openid);
+    public JSONResult deleteGroupMember(Integer groupId, String openid) throws IOException {
+        return groupInfoService. deleteGroupMember(groupId,openid);
     }
 
 
@@ -133,10 +120,11 @@ public class GroupController {
      * @return
      */
     @RequestMapping(value = "/findmember_ingroup" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  JSONResult findMemberInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String openid = request.getParameter("openid");
+    public  JSONResult findMemberInfo(String openid) throws IOException {
         JSONResult result;
-        userInfo = userInfoService.getUserInfo(openid);
+        UserInfoService userInfoService = new UserInfoServiceImpl();
+
+        UserInfo userInfo = userInfoService.GetUserInfo(openid);
         if(userInfo!= null){
             result = new JSONResult(userInfo);
         }else {
@@ -146,4 +134,15 @@ public class GroupController {
 
 
     }
+    /**
+     * 获取班级全部组以及组中成员
+     */
+    @RequestMapping(value = "/findgroup_and_members", method = { RequestMethod.GET, RequestMethod.POST })
+    public JSONResult findMemberInfo(HttpServletRequest request) throws IOException {
+        Integer classId = Integer.valueOf(request.getParameter("classId"));
+        return groupInfoService.findGroupAndMembers(classId);
     }
+
+
+
+}

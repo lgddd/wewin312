@@ -9,6 +9,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -21,17 +22,20 @@ public class CORSFilter implements Filter {
     public CORSFilter() {
     }
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+//        httpResponse.addHeader("Access-Control-Allow-Origin", "*");
+//        httpResponse.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//        httpResponse.setHeader("Access-Control-Allow-Methods", "GET, PUT, DELETE, POST");
 
-        httpServletResponse.setHeader("Cache-Control", "no-cache");
 
-        httpServletResponse.setContentType("text/json;charset=UTF-8");
+        //     httpResponse.addHeader("Access-Control-Allow-Origin", "*");
+        httpResponse.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        httpResponse.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+        httpResponse.addHeader("Access-Control-Max-Age", "1800");//30 min
 
-        chain.doFilter(request, response);
-
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 
     public void init(FilterConfig fConfig) throws ServletException {

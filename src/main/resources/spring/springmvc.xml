@@ -44,16 +44,27 @@
 
 
 
-    <!--视图解析器-->
-    <!--
-    需要配置解析jsp的视图解析器
-    jsp解析，默认使用jstl标签解析
-    -->
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <!--拼接视图地址的前缀和后缀-->
-        <property name="prefix" value="/WEB-INF/jsp/"/>
-        <property name="suffix" value=".jsp"/>
+    <bean
+            class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <!-- <beans:property name="mediaTypes"> <beans:map> <beans:entry key="html"
+            value="text/html" /> <beans:entry key="json" value="application/json" />
+            </beans:map> </beans:property> -->
+        <!-- 视图解析器 -->
+        <property name="viewResolvers">
+            <bean
+                    class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                <property name="prefix" value="/WEB-INF/views/" />
+                <property name="suffix" value=".jsp" />
+            </bean>
+        </property>
+        <property name="defaultViews">
+            <list>
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+            </list>
+        </property>
+
     </bean>
+
 
     <!-- 自定义参数绑定-->
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">

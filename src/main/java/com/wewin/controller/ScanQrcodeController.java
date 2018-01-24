@@ -1,15 +1,14 @@
 package com.wewin.controller;
 
 import com.wewin.entity.UserInfo;
-
+import com.wewin.mapper.UserInfoMapper;
+import com.wewin.service.ClassInfoService;
 import com.wewin.service.Impl.ScanQrcodeServiceImpl;
 import com.wewin.util.ParseXml;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -22,50 +21,58 @@ import java.util.Map;
 public class ScanQrcodeController {
 
     @Autowired
-    ScanQrcodeServiceImpl scanQrcodeService;
-
+    private ScanQrcodeServiceImpl scanQrcodeService;
     @Autowired
-    private UserInfo userInfo;
+    private UserInfoMapper userInfoMapper;
+    @Autowired
+    private ClassInfoService classInfoService;
+
+    private UserInfo userInfo = new UserInfo();
     @Autowired
     private ParseXml parseXml;
-    String TOKEN="weixin";
 
-    @RequestMapping(value = "/test",method={RequestMethod.GET,RequestMethod.POST})
-    public  String  login(HttpServletRequest request, HttpServletResponse response){
-       String id=request.getParameter("id");
-         try{
-            scanQrcodeService.addUser("11111111");
-        }catch (DataAccessException e){
-            //return "success";
-        }
-        //return "redirect:http://gabear.free.ngrok.cc/sureInfo?openid=1111111";
-        return "success";
+    @RequestMapping(value = "/redirect", method = {RequestMethod.GET, RequestMethod.POST})
+    public void ScanEvent(HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-    }
-    @RequestMapping(value = "/redirect",method={RequestMethod.GET,RequestMethod.POST})
-    public String ScanEvent(HttpServletRequest request) throws Exception {
-
-        InputStream reqStream=request.getInputStream();
-        Map<String,String> map=parseXml.getScanInfo(reqStream);
-        String OPENID=map.get("FromUserName");//扫码用户的openID
-        String CLASSNO=map.get("EventKey");//班级编号
-        String EVENT=map.get("Event");//事件类型：subscribe（关注）、unsubscribe（取消关注）、scan（已关注）
-        if(EVENT.equals("subscribe"))//用户关注
+        InputStream reqStream = request.getInputStream();
+        Map<String, String> map = parseXml.getScanInfo(reqStream);
+        String OPENID = map.get("FromUserName");//扫码用户的openID
+        String CLASSNO = map.get("EventKey");//班级编号
+        String[] classno = CLASSNO.split("_");
+        CLASSNO = classno[1];
+        String EVENT = map.get("Event");//事件类型：subscribe（关注）、unsubscribe（取消关注）、scan（已关注）
+        boolean userExisted = scanQrcodeService.userExisted(OPENID);
+        if (EVENT.equals("subscribe"))//用户关注
         {
-          scanQrcodeService.addUser(OPENID);
-          //return "redirect:http://gabear.free.ngrok.cc/sureInfo?openid"+OPENID;
+            if (CLASSNO .equals(" ") || CLASSNO == null)  //非扫码关注
+            {
+                if (!userExisted) {
+                    scanQrcodeService.addUser(OPENID);
+                }
+            }
+            else //扫码关注
+            {
+                if (!userExisted) {
+                    scanQrcodeService.addUser(OPENID);
+                }
+                userInfo = userInfoMapper.selectByPrimaryKey(OPENID);
+               // --------------------调用接口加入班级------------------
+                classInfoService.addmember(OPENID,Integer.parseInt(CLASSNO));
+
+
+            }
+
 
         }
-        else if (EVENT.equals("unsubscribe"))
+        else if (EVENT.equals("scan"))//用户在已关注的情况下扫描二维码
         {
-
-        }
-        else
-        {
-            return "redirect:http://gabear.free.ngrok.cc/sureInfo?openid"+OPENID;
+            userInfo = userInfoMapper.selectByPrimaryKey(OPENID);
+            // --------------------调用接口加入班级------------------
+            classInfoService.addmember(OPENID,Integer.parseInt(CLASSNO));
         }
 
-       return "";
+
+
     }
 
 }

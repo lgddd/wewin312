@@ -1,6 +1,7 @@
 package com.wewin.service;
 
 import com.wewin.entity.GroupInfo;
+import com.wewin.entity.GroupMemberLink;
 import com.wewin.util.JSONResult;
 import net.sf.json.JSON;
 
@@ -9,10 +10,19 @@ import java.util.List;
 public interface GroupInfoService {
     /**
      * 根据classid查询班级的所有分组
-     * @param openid
+     * @param classid
      * @return
      */
-    JSONResult getClassGroupsInfo(String openid);
+    JSONResult getClassGroupsInfo(Integer classid);
+
+
+
+    /**
+     * 根据classid查询班级的所有分组
+     * @param classid
+     * @return
+     */
+    void deleteClassGroups(Integer classid);
 
     /**
      * 新建分组
@@ -62,10 +72,32 @@ public interface GroupInfoService {
     /**
      * 创建班级时新建默认分组 所有成员
      */
-    void addAllMemberGroup(int classId);
+    void adddefaultMemberGroup(Integer classId);
     /**
      *
      * 查找小组信息
      */
-    GroupInfo  getClassGroupsInfo(int groupid);
+    GroupInfo  getGroupInfo(int groupid);
+
+    /**
+     * 小组新增一个成员
+     */
+    int addmember(GroupMemberLink link);
+
+
+    /**
+     * 查找小组以及小组中的成员
+     *
+     * @param
+     * @return
+     */
+    JSONResult findGroupAndMembers(Integer classId);
+
+
+    /**查找班级的所有成员组
+     * */
+    Integer findAllMemberGroup(Integer classId);
+
+
+
 }

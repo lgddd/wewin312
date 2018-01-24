@@ -1,5 +1,6 @@
 package com.wewin.service;
 import com.wewin.entity.ClassInfo;
+import com.wewin.entity.UserInfo;
 import com.wewin.util.JSONResult;
 
 import java.util.List;
@@ -41,4 +42,18 @@ public interface ClassInfoService {
      */
 
     JSONResult updateClass(Integer classid, String classname,String iconpath);
+
+    /**
+     * 删除创建的班级（以及班级下的分组）
+     * @param
+     * @return
+     */
+
+    JSONResult deleteClass(Integer classId);
+
+    /**
+     *
+     * 用户加入班级
+     */
+    void addmember(String openid,Integer classid);
 }

@@ -4,6 +4,8 @@ import com.wewin.entity.ClassInfo;
 import com.wewin.entity.ClassInfoExample;
 import java.util.List;
 import java.util.Map;
+
+import com.wewin.entity.GroupMemberLink;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -79,6 +81,9 @@ public interface ClassInfoMapper {
      */
     List<ClassInfo> selectClassByCreatorId(@Param("openid") String openid);
 
+
+
+    int insertmenber(@Param("link") GroupMemberLink link);
 
     ClassInfo selectByPrimaryKey(Integer classId);
 
