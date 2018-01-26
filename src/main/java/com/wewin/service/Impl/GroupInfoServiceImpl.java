@@ -8,6 +8,7 @@ import com.wewin.service.GroupInfoService;
 import com.wewin.util.JSONResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * @param classid
      * @return
      */
+    @Override
+    @Transactional
     public void deleteClassGroups(Integer classid) {
         List<GroupInfo> list = groupInfoMapper.selectByClassId(classid);
         for (GroupInfo group : list) {
@@ -54,6 +57,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * @param newGroup
      * @return
      */
+    @Override
+    @Transactional
     public JSONResult addGroup(GroupInfo newGroup){
         JSONResult result;
         if(groupInfoMapper.insertSelective(newGroup)!=0){
@@ -67,6 +72,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     /**
      * 创建班级时新建默认分组 所有成员
      */
+    @Override
+    @Transactional
     public void adddefaultMemberGroup(Integer classId){
 
         GroupInfo allMemberGroup = new GroupInfo();
@@ -94,6 +101,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * @param
      * @return
      */
+    @Override
+    @Transactional
     public int deleteGroup(Integer groupId){
         if(groupInfoMapper.deleteGroup(groupId)!=0){
             return 1;
@@ -107,6 +116,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * @param
      * @return
      */
+    @Override
+    @Transactional
     public JSONResult addGroupMembers(Integer groupId,String[] openids){
 
 
@@ -139,6 +150,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * @param
      * @return
      */
+    @Override
+    @Transactional
     public  JSONResult deleteGroupMember(Integer groupId,String openid){
 
         JSONResult result = null;
@@ -163,6 +176,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * @param
      * @return
      */
+    @Override
+    @Transactional
     public int deleteGroupMembers(Integer groupId){
         if(groupInfoMapper.deletemembers(groupId)!=0){return 1;}
         else return 0;
@@ -197,6 +212,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     /**
      * 小组新增一个成员
      */
+    @Override
+    @Transactional
     public  int addmember(GroupMemberLink link){
 
         if(groupInfoMapper.insertmenber(link)!=0){

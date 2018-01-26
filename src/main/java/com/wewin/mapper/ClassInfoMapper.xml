@@ -123,7 +123,12 @@
     SELECT * FROM class WHERE id IN(SELECT classid From groupinfo WHERE id IN (SELECT groupid From group_member WHERE openid = #{openid}))
   </select>
 
-
+<!--查找班级所有成员id-->
+  <select id="selectAllMembers" resultType="String" parameterType="java.lang.Integer">
+    SELECT gm.openid AS openid
+    FROM groupinfo as g, group_member AS gm
+    WHERE g.classid = #{classid} AND g.auth = 0 AND g.id = gm.groupid
+  </select>
 
   <select id="selectByExample" parameterType="com.wewin.entity.ClassInfoExample" resultType="map">
     <!--

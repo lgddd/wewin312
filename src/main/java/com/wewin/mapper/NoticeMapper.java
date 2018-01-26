@@ -1,7 +1,11 @@
 package com.wewin.mapper;
 
 import com.wewin.entity.Notice;
+import com.wewin.entity.NoticeDetail;
+import com.wewin.entity.NoticeOverview;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface NoticeMapper {
@@ -52,4 +56,15 @@ public interface NoticeMapper {
      * @mbggenerated Wed Jan 24 13:41:17 CST 2018
      */
     int updateByPrimaryKey(Notice record);
+
+    /**
+     * 查找某用户发布的所有公告
+     */
+    List<NoticeOverview> selectCreatedNotices(String openid);
+
+    /**
+     * 查找公告详情
+     */
+    List<NoticeDetail> selectNoticeDetail(Integer noticeid);
+
 }

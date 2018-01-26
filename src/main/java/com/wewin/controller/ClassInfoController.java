@@ -59,38 +59,9 @@ public class ClassInfoController {
      * @return
      */
     @RequestMapping(value = "/setting/update" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  JSONResult editMyClassInfo(String classname,Integer classId, @RequestParam(value = "file", required = false) MultipartFile file,HttpServletResponse response) throws IOException {
-        String iconpath = null;
-        if (file != null && !file.isEmpty()) {
-
-            String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-            // 获得文件类型（可以判断如果不是图片，禁止上传）
-            String contentType = file.getContentType();
-            // 获得文件后缀名称
-            String suffix = contentType.substring(contentType.indexOf("/") + 1);
-
-            String tomcat_path = System.getProperty("user.dir");
-            String bin_path = tomcat_path.substring(tomcat_path.lastIndexOf("\\")+1,tomcat_path.length());
-            //保存路径
-            String path;
-            if(("bin").equals(bin_path)){
-                path = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\pic_file\\classicon\\"+uuid+"."+suffix;
-            }else{
-                path = tomcat_path+"\\webapps"+"\\pic_file\\classicon\\"+uuid+"."+suffix;
-            }
-
-
-            file.transferTo(new File(path));
-            iconpath = uuid + "." + suffix;
-
-
-        }
-
+    public  JSONResult editMyClassInfo(String classname,Integer classId,  String iconpath, HttpServletResponse response) throws IOException {
 
         return classInfoService.updateClass(classId,classname,iconpath);
-
-
-
     }
 
     /**
@@ -99,7 +70,7 @@ public class ClassInfoController {
      * @return
      */
     @RequestMapping(value = "/findclasses_create" ,method={RequestMethod.GET,RequestMethod.POST})
-    public JSONResult findMyClassesInfo(String openid, HttpServletResponse response) throws IOException {
+    public JSONResult findMyClassesInfo(String openid) throws IOException {
        return classInfoService.getMyClassesInfo(openid);
 
     }
@@ -119,35 +90,9 @@ public class ClassInfoController {
      * @param
      * @return
      */
-
     @RequestMapping(value = "/new/addclass" ,method={RequestMethod.GET,RequestMethod.POST})
-    public JSONResult createClasses(String classname,String creatorid, @RequestParam(value = "file", required = false) MultipartFile file,HttpServletResponse response) throws IOException
+    public JSONResult createClasses(String classname,String creatorid, String iconpath,HttpServletResponse response) throws IOException
     { ClassInfo newClassInfo = new ClassInfo();
-        String iconpath = "";
-        if (!file.isEmpty()) {
-
-        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-        // 获得文件类型（可以判断如果不是图片，禁止上传）
-        String contentType = file.getContentType();
-        // 获得文件后缀名称
-        String suffix = contentType.substring(contentType.indexOf("/") + 1);
-
-        String tomcat_path = System.getProperty("user.dir");
-        String bin_path = tomcat_path.substring(tomcat_path.lastIndexOf("\\")+1,tomcat_path.length());
-        //保存路径
-        String path;
-        if(("bin").equals(bin_path)){
-            path = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\pic_file\\classicon\\"+uuid+"."+suffix;
-        }else{
-            path = tomcat_path+"\\webapps"+"\\pic_file\\classicon\\"+uuid+"."+suffix;
-        }
-
-
-        file.transferTo(new File(path));
-        iconpath = uuid + "." + suffix;
-
-    }
-
         newClassInfo.setClassIcon(iconpath);
         newClassInfo.setCreateTime(new Date().toString());
         newClassInfo.setCreatorid(creatorid);
@@ -159,6 +104,8 @@ public class ClassInfoController {
     }
 
     /**
+     * 查询二维码图片：直接从服务器传
+     *
      * 传入参数 type picName(二维码图片名为班级编号)
      * 获取班级二维码 type = 1
      * 获取头像 type = 0
@@ -166,13 +113,13 @@ public class ClassInfoController {
     @RequestMapping(value = "/findicon", method = { RequestMethod.GET, RequestMethod.POST })
     public void picture(HttpServletRequest request, HttpServletResponse response) {
         String picName = request.getParameter("picName");
-        String type = request.getParameter("type");
-        if("1"==type){
-            type = "qrcode\\";
-        }
-        else {
-            type = "classicon\\";
-        }
+        //String type = request.getParameter("type");
+        //if("1"==type){
+        String  type = "qrcode\\";
+        //}
+        //else {
+          //  type = "classicon\\";
+        //}
         response.setContentType("image/png");
         FileInputStream fis = null;
         OutputStream os = null;
@@ -210,6 +157,7 @@ public class ClassInfoController {
      * 删除班级
 
      */
+
     @RequestMapping(value = "/deleteclass" ,method={RequestMethod.GET,RequestMethod.POST})
     public   JSONResult deleteClasses(Integer classId)  {
         return  classInfoService.deleteClass(classId);
@@ -217,10 +165,6 @@ public class ClassInfoController {
     }
 
 
-    @RequestMapping(value = "/test2" ,method={RequestMethod.GET,RequestMethod.POST})
-    public   void testClassesInfo2() throws IOException {
-        classInfoService.addmember("abc",23);
-    }
 
 
 

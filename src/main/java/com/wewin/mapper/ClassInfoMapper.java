@@ -118,4 +118,9 @@ public interface ClassInfoMapper {
      * @mbggenerated Wed Dec 13 20:47:36 CST 2017
      */
     int updateByPrimaryKey(ClassInfo record);
+
+    /**
+     * 查找班级所有成员openid
+     */
+    List<String> selectAllMembers(Integer classid);
 }

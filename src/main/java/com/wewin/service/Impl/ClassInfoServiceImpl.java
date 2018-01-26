@@ -1,4 +1,5 @@
 package com.wewin.service.Impl;
+import com.sun.org.glassfish.external.arc.Taxonomy;
 import com.wewin.entity.ClassInfo;
 import com.wewin.entity.GroupInfo;
 import com.wewin.entity.GroupMemberLink;
@@ -7,6 +8,8 @@ import com.wewin.service.ClassInfoService;
 import com.wewin.service.GetQrcodeService;
 import com.wewin.service.GroupInfoService;
 import com.wewin.util.JSONResult;
+import com.wewin.util.QiniuUtil;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
     private GetQrcodeService getQrcodeService;
     @Autowired
     private GroupInfoService groupInfoService;
+
     /**
      * 根据班级id查询班级信息
      * @param id
@@ -34,6 +38,7 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      */
     public JSONResult  getClassInfo(Integer id) {
         ClassInfo classinfo= classInfoMapper.selectClassById(id);
+        classinfo.setClassIcon(QiniuUtil.getDownLoadToekn(classinfo.getClassIcon()));
         JSONResult result;
         if(classinfo!=null){
             result = new JSONResult(classinfo);
@@ -51,6 +56,9 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      */
    public JSONResult getMyClassesInfo(String openid){
        List<ClassInfo> list = classInfoMapper.selectClassByCreatorId(openid);
+       for(ClassInfo classInfo:list){
+           classInfo.setClassIcon(QiniuUtil.getDownLoadToekn(classInfo.getClassIcon()));
+       }
        JSONResult result;
        if(list!=null){
            result = new JSONResult(list);
@@ -69,6 +77,9 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      */
     public JSONResult getJoinClassesInfo(String openid){
         List<ClassInfo> list = classInfoMapper.selectJoinClass(openid);
+        for(ClassInfo classInfo:list){
+            classInfo.setClassIcon(QiniuUtil.getDownLoadToekn(classInfo.getClassIcon()));
+        }
         JSONResult result;
         if(list!=null){
             result = new JSONResult(list);
@@ -85,15 +96,19 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      * @param
      * @return
      */
-
+    @Override
+    @Transactional
    public JSONResult addClass(ClassInfo newClassInfo){
        JSONResult result;
        int param = classInfoMapper.insert(newClassInfo);
        Integer classId = newClassInfo.getClassId();
+
        groupInfoService.adddefaultMemberGroup(classId);
+
        GroupMemberLink link = new GroupMemberLink();
        link.setUserid(newClassInfo.getCreatorid());
        link.setGroupid(groupInfoService.findAllMemberGroup(classId));
+
        groupInfoService.addmember(link);
        //System.out.println(param);
        if(param!=0){
@@ -115,6 +130,8 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      * @param
      * @return
      */
+    @Override
+    @Transactional
     public JSONResult updateClass(Integer classid, String classname,String iconpath){
         JSONResult result;
         ClassInfo newClassInfo = classInfoMapper.selectClassById(classid);
@@ -137,7 +154,8 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      * @param
      * @return
      */
-
+    @Override
+    @Transactional
     public JSONResult deleteClass(Integer classId){
         JSONResult result;
         //1.删除班级下的所有小组
@@ -154,6 +172,8 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      *
      * 用户加入班级
      */
+    @Override
+    @Transactional
     public void addmember(String openid,Integer classid){
         //找到该班级的所有成员组
         Integer groupid = groupInfoService.findAllMemberGroup(classid);
