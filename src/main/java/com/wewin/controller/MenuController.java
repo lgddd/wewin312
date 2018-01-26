@@ -20,19 +20,19 @@ public class MenuController {
     @Autowired
     private UserInfoMapper userInfoMapper;
 
-    @RequestMapping(value = "/menu", method =RequestMethod.GET)
+    @RequestMapping(value = "/menu")
     public String GetOpenId(HttpServletRequest request, HttpServletResponse response){
         //String URL="http://wewinnat.free.ngrok.cc/oauth/";//服务器的地址
-        String URL="http://111.231.204.105/WeWin/oauth/";//服务器的地址
+        String URL="http://111.231.204.105/WeWin/test";//服务器的地址
         //String URL="https://wewinnat.free.ngrok.cc/oauth";//服务器的地址
         String APPID="wxff32e2db397dbbf8";//APPID
-        String RedirectUrl="https://open.weixin.qq.com/connect/oauth2/authorize?appid="+APPID+"&redirect_uri="+URL+
-                "?response_type=code&scope=snsapi_base&state=1&connect_redirect=1#wechat_redirect";
+//        String RedirectUrl="https://open.weixin.qq.com/connect/oauth2/authorize?appid="+APPID+"&redirect_uri="+URL+
+//                "?response_type=code&scope=snsapi_base&state=1&connect_redirect=1#wechat_redirect";
 
 
-        return "redirect:https://open.weixin.qq.com/connect/oauth2/authorize?appid="+APPID+"&redirect_uri="+URL+ "?response_type=code&scope=snsapi_base&state=1&connect_redirect=1#wechat_redirect";
+      return "redirect:https://open.weixin.qq.com/connect/oauth2/authorize?appid="+APPID+"&redirect_uri="+URL+ "?response_type=code&scope=snsapi_base&state=1&connect_redirect=1#wechat_redirect";
     }
-    @RequestMapping(value="/oauth")
+    @RequestMapping(value="/test")
     public  ModelAndView Redirect(HttpServletRequest request, HttpServletResponse response){
         UserInfo userInfo=new UserInfo();
         String CODE = request.getParameter("code");
@@ -50,7 +50,7 @@ public class MenuController {
             return  new ModelAndView(new RedirectView("http://gabear.free.ngrok.cc/sureInfo?openid="+OPENID));
         }
         //return "redirect：gabear.free.ngrok.cc/sureInfo?openid="+OPENID;//跳转到用户编辑页面
-        return  new ModelAndView(new RedirectView("http://111.231.204.105/wewinFront/class?openid="+OPENID));
+        return  new ModelAndView(new RedirectView("http://111.231.204.105/WeWin/wewinFront/class?openid="+OPENID));
        /* String servletPath=request.getServletPath();
 
         if (servletPath.equals(" ")) {

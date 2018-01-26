@@ -6,6 +6,7 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.model.BatchStatus;
 import com.qiniu.util.Auth;
 
 import java.io.IOException;
@@ -72,6 +73,43 @@ public class QiniuUtil {
             //捕获异常信息
             Response r = e.response;
             System.out.println(r.toString());
+        }
+    }
+
+    /**
+     * 批量删除七牛云上的文件
+     */
+    public static void batchdelete(String[] deletelist){
+        //构造一个带指定Zone对象的配置类
+        Configuration cfg = new Configuration(Zone.zone0());
+
+        BucketManager bucketManager = new BucketManager(auth, cfg);
+
+        //单次批量请求的文件数量不得超过1000
+//        String[] keyList = new String[]{
+//                "qiniu.jpg",
+//                "qiniu.mp4",
+//                "qiniu.png",
+//        };
+
+        try {
+
+            BucketManager.BatchOperations batchOperations = new BucketManager.BatchOperations();
+            batchOperations.addDeleteOp(bucket, deletelist);
+            Response response = bucketManager.batch(batchOperations);
+            BatchStatus[] batchStatusList = response.jsonToObject(BatchStatus[].class);
+            for (int i = 0; i < deletelist.length; i++) {
+                BatchStatus status = batchStatusList[i];
+                String key = deletelist[i];
+                System.out.print(key + "\t");
+                if (status.code == 200) {
+                    System.out.println("delete success");
+                } else {
+                    System.out.println(status.data.error);
+                }
+            }
+        } catch (QiniuException ex) {
+            System.err.println(ex.response.toString());
         }
     }
 

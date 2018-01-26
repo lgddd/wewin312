@@ -106,8 +106,66 @@ public class NoticeServiceImpl implements NoticeService {
         }
         //删除公告成员表中相关信息
         int param1 = noticeMemberMapper.deleteByNoticeId(noticeId);
+
+
+        //记录公告附件资源,json解析后保存到String[]数据
+        //---------------------------------------------------------------
+        String[] deletelist={};
+        List<FileURL> picurls = null;
+        List<FileURL> movurls = null;
+        List<FileURL> fileurls =null;
+        int i = 0;
+        //转换url
+        if (notice.getPicUrl() != "[]"){
+            JSONArray jsonArray = JSONArray.fromObject(notice.getPicUrl());
+
+            picurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
+            Iterator it = picurls.iterator();
+            while(it.hasNext()){
+                FileURL f = (FileURL)it.next();
+               deletelist[i] = f.getValue();
+               i++;
+            }
+
+        }
+        if(notice.getMovUrl() != "[]"){
+
+            JSONArray jsonArray = JSONArray.fromObject(notice.getMovUrl());
+
+            movurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
+
+            Iterator it = movurls.iterator();
+
+            while(it.hasNext()){
+                FileURL f = (FileURL)it.next();
+                deletelist[i] = f.getValue();
+                i++;
+            }
+
+
+        }
+        if (notice.getFileUrl()!= "[]"){
+
+            JSONArray jsonArray = JSONArray.fromObject(notice.getFileUrl());
+
+            fileurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
+            Iterator it = fileurls.iterator();
+            while(it.hasNext()){
+                FileURL f = (FileURL)it.next();
+                deletelist[i] = f.getValue();
+                i++;
+            }
+        }
+
+
+        //-----------------------------------------------------------------
+
+
         //删除公告
         int param2 = noticeMapper.deleteByPrimaryKey(noticeId);
+
+        //删除七牛云资源
+        if (deletelist.length!=0) QiniuUtil.batchdelete(deletelist);
 
         if(param1!=0 && param2 !=0){
             result = new JSONResult(Boolean.TRUE,"delete notice success");
@@ -151,7 +209,7 @@ public class NoticeServiceImpl implements NoticeService {
              while(it.hasNext()){
                  FileURL f = (FileURL)it.next();
                  //url转换成七牛云updownloadtoken
-                 f.setValue(QiniuUtil.getDownLoadToekn("http://p2zhcnn8g.bkt.clouddn.com/"+f.getValue()));
+                 f.setValue(QiniuUtil.getDownLoadToekn(f.getValue()));
                  int i =0;
                  temp.add(f);
              }

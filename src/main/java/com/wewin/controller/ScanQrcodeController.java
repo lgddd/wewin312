@@ -38,8 +38,11 @@ public class ScanQrcodeController {
         Map<String, String> map = parseXml.getScanInfo(reqStream);
         String OPENID = map.get("FromUserName");//扫码用户的openID
         String CLASSNO = map.get("EventKey");//班级编号
-        String[] classno = CLASSNO.split("_");
-        CLASSNO = classno[1];
+
+        if(CLASSNO !=null){
+            String[] classno = CLASSNO.split("_");
+        if(classno.length>=1) CLASSNO = classno[1];
+        }
         String EVENT = map.get("Event");//事件类型：subscribe（关注）、unsubscribe（取消关注）、scan（已关注）
         boolean userExisted = scanQrcodeService.userExisted(OPENID);
         if (EVENT.equals("subscribe"))//用户关注
