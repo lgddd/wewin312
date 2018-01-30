@@ -110,52 +110,52 @@ public class NoticeServiceImpl implements NoticeService {
 
         //记录公告附件资源,json解析后保存到String[]数据
         //---------------------------------------------------------------
-        String[] deletelist={};
-        List<FileURL> picurls = null;
-        List<FileURL> movurls = null;
-        List<FileURL> fileurls =null;
-        int i = 0;
-        //转换url
-        if (notice.getPicUrl() != "[]"){
-            JSONArray jsonArray = JSONArray.fromObject(notice.getPicUrl());
-
-            picurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
-            Iterator it = picurls.iterator();
-            while(it.hasNext()){
-                FileURL f = (FileURL)it.next();
-               deletelist[i] = f.getValue();
-               i++;
-            }
-
-        }
-        if(notice.getMovUrl() != "[]"){
-
-            JSONArray jsonArray = JSONArray.fromObject(notice.getMovUrl());
-
-            movurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
-
-            Iterator it = movurls.iterator();
-
-            while(it.hasNext()){
-                FileURL f = (FileURL)it.next();
-                deletelist[i] = f.getValue();
-                i++;
-            }
-
-
-        }
-        if (notice.getFileUrl()!= "[]"){
-
-            JSONArray jsonArray = JSONArray.fromObject(notice.getFileUrl());
-
-            fileurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
-            Iterator it = fileurls.iterator();
-            while(it.hasNext()){
-                FileURL f = (FileURL)it.next();
-                deletelist[i] = f.getValue();
-                i++;
-            }
-        }
+//        String[] deletelist={};
+//        List<FileURL> picurls = new ArrayList<FileURL>();
+//        List<FileURL> movurls = new ArrayList<FileURL>();
+//        List<FileURL> fileurls =new ArrayList<FileURL>();
+//        int i = 0;
+//        //转换url
+//        if (notice.getPicUrl() != "[]"){
+//            JSONArray jsonArray = JSONArray.fromObject(notice.getPicUrl());
+//
+//            picurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
+//            Iterator it = picurls.iterator();
+//            while(it.hasNext()){
+//                FileURL f = (FileURL)it.next();
+//               deletelist[i] = f.getValue();
+//               i++;
+//            }
+//
+//        }
+//        if(notice.getMovUrl() != "[]"){
+//
+//            JSONArray jsonArray = JSONArray.fromObject(notice.getMovUrl());
+//
+//            movurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
+//
+//            Iterator it = movurls.iterator();
+//
+//            while(it.hasNext()){
+//                FileURL f = (FileURL)it.next();
+//                deletelist[i] = f.getValue();
+//                i++;
+//            }
+//
+//
+//        }
+//        if (notice.getFileUrl()!= "[]"){
+//
+//            JSONArray jsonArray = JSONArray.fromObject(notice.getFileUrl());
+//
+//            fileurls = (List)JSONArray.toCollection(jsonArray,FileURL.class);
+//            Iterator it = fileurls.iterator();
+//            while(it.hasNext()){
+//                FileURL f = (FileURL)it.next();
+//                deletelist[i] = f.getValue();
+//                i++;
+//            }
+//        }
 
 
         //-----------------------------------------------------------------
@@ -165,7 +165,7 @@ public class NoticeServiceImpl implements NoticeService {
         int param2 = noticeMapper.deleteByPrimaryKey(noticeId);
 
         //删除七牛云资源
-        if (deletelist.length!=0) QiniuUtil.batchdelete(deletelist);
+        //if (deletelist.length!=0) QiniuUtil.batchdelete(deletelist);
 
         if(param1!=0 && param2 !=0){
             result = new JSONResult(Boolean.TRUE,"delete notice success");
@@ -268,35 +268,38 @@ public class NoticeServiceImpl implements NoticeService {
 
         //当类型为活动时
         if(notice.getNoticeno() == 3){
+
+
+
+
+
+
             //更新noticemember表格 isread = 2 已读未参加
-            int param1 = noticeMemberMapper.updateIsread(openid, noticeId, 2);
+
+            noticeMemberMapper.updateIsread(openid, noticeId, 2);
+
             NoticeDetail noticeDetail =TransNotice( noticeMapper.selectNoticeDetail(noticeId).get(0));
 
             //当type=3，readnum记录参加活动的人数 不需更新notice的readnum
 
-            if(param1!=0)
-            {
-                result = new JSONResult(noticeDetail);
-            }else{
-                result = new JSONResult(Boolean.FALSE,"error");
-            }
+
+            result = new JSONResult(noticeDetail);
+
 
         }else{
             //当类型为公告或通知时
             //更新noticemember isread = 1
             int param2 = noticeMemberMapper.updateIsread(openid,noticeId,1);
+            //param2 为更新操作受影响人数
             //更新已读人数
-            notice.setReadNum(notice.getReadNum()+1);
-            int param3 = noticeMapper.updateByPrimaryKeySelective(notice);
+            notice.setReadNum(notice.getReadNum()+param2);
+            noticeMapper.updateByPrimaryKeySelective(notice);
 
             //获取公告详情
             NoticeDetail noticeDetail =TransNotice( noticeMapper.selectNoticeDetail(noticeId).get(0));
 
-            if(param2!=0 && param3!=0){
-                result = new JSONResult(noticeDetail);
-            }else{
-                result = new JSONResult(Boolean.FALSE,"error");
-            }
+            result = new JSONResult(noticeDetail);
+
 
         }
 
@@ -319,14 +322,15 @@ public class NoticeServiceImpl implements NoticeService {
         int param1 = noticeMemberMapper.updateIsread(openid, noticeId, 1);
         //更新参加人数
 
-        notice.setReadNum(notice.getReadNum()+1);
-        int param2 = noticeMapper.updateByPrimaryKeySelective(notice);
+        if(param1 == 1) {
+            notice.setReadNum(notice.getReadNum() + 1);
+            noticeMapper.updateByPrimaryKeySelective(notice);
+        }
 
-
-        if(param1!=0 && param2 !=0){
+        if(param1 ==1 ){
             result = new JSONResult(Boolean.TRUE,"joinActivity success");
         }else{
-            result = new JSONResult(Boolean.TRUE," joinActivity failed");
+            result = new JSONResult(Boolean.FALSE,"already  joinActivity");
         }
 
         return result;
@@ -449,6 +453,47 @@ public class NoticeServiceImpl implements NoticeService {
             result = new JSONResult(Boolean.FALSE,"not found unread notices");
         }
         return result;
+    }
+
+
+    /**
+     * 查找某个班级的全部公告
+     */
+
+    @Override
+    @Transactional
+    public JSONResult findClassNotice(Integer classId){
+        List<NoticeOverview> notices = noticeMapper.selectClassNotices(classId);
+
+        for(NoticeOverview notice:notices){
+            if(notice.getNoticeType()==1){
+                notice.setNoticeType2("公告");
+            }else if(notice.getNoticeType()==2){
+                notice.setNoticeType2("通知");
+            }else if(notice.getNoticeType()==3){
+                notice.setNoticeType2("活动");
+            }
+            else notice.setNoticeType2("error");
+        }
+
+        JSONResult result;
+        if(notices!=null){
+            result = new JSONResult(notices);
+        }else{
+            result = new JSONResult(Boolean.FALSE,"not found  class's notices");
+        }
+        return result;
+    }
+
+    /**
+     *
+     * 查找用户是否已经参加活动
+     */
+    public  JSONResult isjoinActivity(Integer noticeid, String openid){
+
+       if(noticeMemberMapper.isjoinActivity(noticeid,openid) == 1)
+        return new JSONResult(Boolean.TRUE,"already join");
+       else return new JSONResult(Boolean.FALSE,"not join");
     }
 
 }

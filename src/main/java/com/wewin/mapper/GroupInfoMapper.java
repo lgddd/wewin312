@@ -154,4 +154,6 @@ public interface GroupInfoMapper {
      * @mbggenerated Tue Dec 19 22:06:29 CST 2017
      */
     int updateByPrimaryKey(GroupInfo record);
+
+    int deletememberfromclass(Integer classid, Integer groupid, String openid);
 }

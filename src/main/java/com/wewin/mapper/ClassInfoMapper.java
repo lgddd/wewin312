@@ -123,4 +123,10 @@ public interface ClassInfoMapper {
      * 查找班级所有成员openid
      */
     List<String> selectAllMembers(Integer classid);
+
+    /**判断用户是否加入班级
+     *
+     */
+    int selectIsInClass(String openid, Integer classid);
+
 }

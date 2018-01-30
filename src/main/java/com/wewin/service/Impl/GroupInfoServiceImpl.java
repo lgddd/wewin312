@@ -1,8 +1,10 @@
 package com.wewin.service.Impl;
 
+import com.wewin.entity.ClassInfo;
 import com.wewin.entity.GroupInfo;
 import com.wewin.entity.GroupMemberLink;
 import com.wewin.entity.UserInfo;
+import com.wewin.mapper.ClassInfoMapper;
 import com.wewin.mapper.GroupInfoMapper;
 import com.wewin.service.GroupInfoService;
 import com.wewin.util.JSONResult;
@@ -19,8 +21,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     private GroupInfo groupInfo;
     @Autowired
     private GroupInfoMapper groupInfoMapper;
-
-
+    @Autowired
+    private ClassInfoMapper classInfoMapper;
     /**
      * 根据classid查询班级们所有分组
      * @param classid
@@ -120,7 +122,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     @Transactional
     public JSONResult addGroupMembers(Integer groupId,String[] openids){
 
-
+        //Integer membernum = openids.length;
         JSONResult result = null;
         List<GroupMemberLink> links = new ArrayList<GroupMemberLink>();
 
@@ -135,7 +137,18 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
             GroupInfo groupInfo = getGroupInfo(groupId);
             groupInfo.setMemberSize(groupInfo.getMemberSize()+size);
+
             groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
+
+
+            //当小组为老师(1) 助教（2）组 +tsize -ssize
+            if(groupInfo.getGroupAuth() == 1||groupInfo.getGroupAuth() ==2){
+                ClassInfo targetclass = classInfoMapper.selectClassById(groupInfo.getClassId());
+                targetclass.setTeacherSize(targetclass.getTeacherSize()+openids.length);
+               // targetclass.setStudentSize(targetclass.getStudentSize()-openids.length);
+                classInfoMapper.updateByPrimaryKey(targetclass);
+            }
+
            result = new JSONResult(Boolean.TRUE,"add groupmember success");
 
         }else {
@@ -147,6 +160,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
     /**
      * 小组删除一个成员
+     *
      * @param
      * @return
      */
@@ -162,6 +176,17 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             GroupInfo groupInfo = getGroupInfo(groupId);
             groupInfo.setMemberSize(groupInfo.getMemberSize()-1);
             groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
+            //如果是老师组 老师人数-1
+            //当小组为老师(1) 助教（2）组 +tsize
+            if(groupInfo.getGroupAuth() == 1||groupInfo.getGroupAuth() ==2){
+                ClassInfo targetclass = classInfoMapper.selectClassById(groupInfo.getClassId());
+                targetclass.setTeacherSize(targetclass.getTeacherSize()-1);
+               // targetclass.setStudentSize(targetclass.getStudentSize()+1);
+                classInfoMapper.updateByPrimaryKey(targetclass);
+            }
+
+
+
             result = new JSONResult(Boolean.TRUE,"delete groupmember success");
         }else {
             result = new JSONResult(Boolean.FALSE,"delete groupmember failed");
@@ -190,6 +215,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * @param
      * @return
      */
+    @Override
     public JSONResult findGroupMembers(Integer groupId){
         JSONResult result = null;
         List<UserInfo> list = groupInfoMapper.selectGroupMembers(groupId);
@@ -204,6 +230,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      *
      * 查找小组信息
      */
+    @Override
     public GroupInfo  getGroupInfo(int groupid){
 
         return  groupInfoMapper.selectByPrimaryKey(groupid);
@@ -218,6 +245,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
         if(groupInfoMapper.insertmenber(link)!=0){
 
+            //加成员成功时，小组size+1
             GroupInfo groupInfo = getGroupInfo(link.getGroupid());
             groupInfo.setMemberSize(groupInfo.getMemberSize()+1);
             groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
@@ -255,4 +283,34 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         return groupid;
     }
 
+    /**
+     * 全部成员组删除某成员
+     * @param classid
+     * @param groupid
+     * @param openid
+     * @return
+     */
+    @Override
+    @Transactional
+    public JSONResult deletefromclass(Integer classid,Integer groupid,String openid){
+        //先判断是否在别的组里 如老师 助教
+        //1.先删作业
+        //2.再删公告
+        //3.再删组关系？？
+        groupInfoMapper.deletememberfromclass(classid,groupid,openid);
+        //更新组人数
+        GroupInfo  groupInfo = groupInfoMapper.selectByPrimaryKey(groupid);
+        groupInfo.setMemberSize(groupInfo.getMemberSize()-1);
+        groupInfoMapper.updateByPrimaryKeySelective(groupInfo);
+        //更新班级全部成员数
+        ClassInfo classInfo = classInfoMapper.selectClassById(classid);
+        classInfo.setStudentSize(classInfo.getStudentSize()-1);
+        classInfoMapper.updateByPrimaryKey(classInfo);
+
+
+
+        if(groupInfoMapper.deletememberfromclass(classid,groupid,openid)!=0){
+            return  new JSONResult(Boolean.TRUE,"delete from class success");
+        }else return new JSONResult(Boolean.FALSE);
+    }
 }

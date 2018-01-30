@@ -260,6 +260,12 @@
     </if>
   </select>
 
+  <!-- 查找用户是否在班级内 -->
+  <select id="selectIsInClass" resultType="java.lang.Integer">
+    SELECT  count(*) from  groupindo AS gi ,group_member AS gm
+    WHERE gi.classid = #{1} AND gi.id = gm.groupid AND gm.openid = #{0}
+  </select>
+
   <update id="updateByExampleSelective" parameterType="map">
     <!--
       WARNING - @mbggenerated

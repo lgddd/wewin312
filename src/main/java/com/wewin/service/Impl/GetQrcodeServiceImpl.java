@@ -10,6 +10,7 @@ import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
 import com.wewin.service.GetQrcodeService;
 import com.wewin.util.DownloadQrcode;
+import com.wewin.util.QiniuUtil;
 import net.sf.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -54,9 +55,9 @@ public class GetQrcodeServiceImpl implements GetQrcodeService {
         String bin_path = tomcat_path.substring(tomcat_path.lastIndexOf("\\")+1,tomcat_path.length());
         String pic_path;
         if(("bin").equals(bin_path)){
-            pic_path = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\pic_file\\qrcode\\";
+            pic_path = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\qrcode\\";
         }else{
-            pic_path = tomcat_path+"\\webapps"+"\\pic_file\\qrcode\\";
+            pic_path = tomcat_path+"\\webapps"+"\\qrcode\\";
         }
         DownloadQrcode.sendGetAndSaveFile(URL,pic_path+classId+".jpg");
         //构造一个带指定Zone对象的配置类
@@ -96,7 +97,10 @@ public class GetQrcodeServiceImpl implements GetQrcodeService {
         String encodedFileName = URLEncoder.encode(fileName, "utf-8");
         String finalUrl = String.format("%s/%s", domainOfBucket, encodedFileName);
 
-        return finalUrl;
+//        return finalUrl;
+        String result = QiniuUtil.getDownLoadToekn("http://p2zhcnn8g.bkt.clouddn.com/"+classId+".jpg");
+        return result;
+
     }
 
 

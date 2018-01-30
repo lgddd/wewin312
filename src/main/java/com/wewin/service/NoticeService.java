@@ -24,4 +24,12 @@ public interface NoticeService {
     JSONResult findUnreadNotices(String openid);
 
     JSONResult joinActivity(Integer noticeId, String openid);
+
+    JSONResult findClassNotice(Integer noticeId);
+
+    /**
+     *
+     * 查找用户是否已经参加活动
+     */
+    JSONResult isjoinActivity(Integer noticeid, String openid);
 }

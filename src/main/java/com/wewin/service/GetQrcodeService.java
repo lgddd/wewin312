@@ -4,5 +4,8 @@ import java.io.UnsupportedEncodingException;
 
 public interface GetQrcodeService {
     String classNo=null;
+
     public String getQrcodeUrl(String classId) throws UnsupportedEncodingException;
+
+    public  String getAuthtoken();
 }

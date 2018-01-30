@@ -23,15 +23,23 @@ public class QiniuUtil {
     private static final Auth auth = Auth.create(ACCESS_KEY,SECRET_KEY);
 
     public static String getToken(){
-        return auth.uploadToken(bucket,"testwewin", expireSeconds,null);
+        return auth.uploadToken(bucket,null, expireSeconds,null);
     }
 
     public static String getDownLoadToekn(String url)
     {
+        //返回缩略图的token
+        String test = url+"-compact";
+        String result = auth.privateDownloadUrl(url);
+        return result;
+        //return auth.privateDownloadUrl(url);
+    }
+
+    //返回原图的token
+    public static  String getDownOriginalLoadToekn(String url){
         String test = url;
         String result = auth.privateDownloadUrl(url);
         return result;
-//        return auth.privateDownloadUrl(url);
     }
 
     //普通上传

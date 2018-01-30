@@ -56,4 +56,13 @@ public interface ClassInfoService {
      * 用户加入班级
      */
     void addmember(String openid,Integer classid);
+
+
+    /**
+     * 判断用户是否加入班级
+     * @param openid
+     * @param classid
+     * @return
+     */
+    int isinclass(String openid, Integer classid);
 }

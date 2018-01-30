@@ -99,4 +99,15 @@ public interface NoticeMemberMapper {
      */
     int updateIsread(String openid, Integer noticeid, Integer isread);
 
+    /**
+     * 删除班级相关公告成员信息
+     */
+    int deleteClassNotice(Integer classid);
+
+    /**
+     * 查看用户是否已经参加活动
+     * @param noticeid
+     * @param openid
+     */
+    int isjoinActivity(Integer noticeid, String openid);
 }

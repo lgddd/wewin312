@@ -98,6 +98,14 @@ public interface GroupInfoService {
      * */
     Integer findAllMemberGroup(Integer classId);
 
+    /**
+     * 全部成员组删除某成员
+     * @param classid
+     * @param groupid
+     * @param openid
+     * @return
+     */
+    JSONResult deletefromclass(Integer classid,Integer groupid,String openid);
 
 
 }

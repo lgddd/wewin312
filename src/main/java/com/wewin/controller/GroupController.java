@@ -22,6 +22,11 @@ import java.io.IOException;
 @RequestMapping("/member")
 public class GroupController {
 
+    /**
+     * group 参数说明 全部成员 0 老师 1 助教 2 普通组 9
+     *
+     *
+     */
     @Autowired
     private GroupInfoService groupInfoService;
 
@@ -54,7 +59,7 @@ public class GroupController {
     }
     /**
      * 新增分组
-     * 权限：默认为普通组9 所有成员0 创建者1 老师2 助教3
+     * 权限：默认为普通组9 所有成员0  老师1 助教2
      * @param
      * @return
      */
@@ -138,11 +143,23 @@ public class GroupController {
      * 获取班级全部组以及组中成员
      */
     @RequestMapping(value = "/findgroup_and_members", method = { RequestMethod.GET, RequestMethod.POST })
-    public JSONResult findMemberInfo(HttpServletRequest request) throws IOException {
-        Integer classId = Integer.valueOf(request.getParameter("classId"));
+    public JSONResult findMemberInfo(Integer classId) throws IOException {
         return groupInfoService.findGroupAndMembers(classId);
     }
 
 
+    /**
+     *  全部成员组删除某成员 不可用 待修改
+     */
+    @RequestMapping(value = "/deletememberaway", method = { RequestMethod.GET, RequestMethod.POST })
+    public JSONResult deletemember( )  {
+//        public JSONResult deletemember( Integer classid,Integer groupid,String openid)  {
+ //       return groupInfoService.deletefromclass(classid,groupid,openid);
+
+        JSONResult result = groupInfoService.deletefromclass(43,48,"test2");
+        System.out.println(result.toString());
+        return result;
+
+    }
 
 }

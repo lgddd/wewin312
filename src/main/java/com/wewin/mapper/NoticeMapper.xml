@@ -95,6 +95,19 @@ WHERE n.id = #{noticeid,jdbcType=INTEGER} AND n.publisher = y.openid AND n.targe
     ORDER BY n.publishtime
   </select>
 
+  <!-- 查找班级的所有功能 -->
+  <select id="selectClassNotices" resultMap="noticeOverViewResultMap" parameterType="java.lang.String" >
+
+    select
+    n.id AS noticeid,n.title AS noticeName, n.noticeno AS noticeType,
+    y.nickname AS creatorName , cl.classname AS className , n.publishtime AS createTime,
+    n.content AS noticeContent , n.endtime AS end_time
+    from notice AS n, yhxx AS y, class AS cl
+    where (n.targetclass= #{classId}
+    AND n.publisher = y.openid AND n.targetclass = cl.id)
+    ORDER BY n.publishtime
+  </select>
+
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--

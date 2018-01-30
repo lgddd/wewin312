@@ -23,7 +23,15 @@ import java.util.*;
 @Controller
 @RequestMapping("/notice")
 public class NoticeController {
-
+    /**
+     * 参数说明
+     * type=1 公告：
+     *      isread = 0 未读 isread = 1 已读 readnum 已读人数
+     * type=2 消息：
+     *      isread = 0 未读 isread = 1 已读 readnum 已读人数
+     * type=3 活动：
+     *      isread = 0 未读 isread = 1 已读已参加 isread = 2 已读未参加 readnum 已参加人数
+     */
     @Autowired
     private NoticeService noticeService;
 
@@ -45,7 +53,14 @@ public class NoticeController {
         newNotice.setReadNum(0);
         newNotice.setTitle(title);
         newNotice.setTargetclass(classid);
-        newNotice.setPublishtime(new Date().toString());
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+
+
+
+        int day = cal.get(Calendar.DATE);
+        newNotice.setPublishtime(year+"-"+month+"-"+day);
 
         //存JSON?
         List<FileURL> picurls = new ArrayList<FileURL>();
@@ -115,13 +130,13 @@ public class NoticeController {
         String json2= null;
         String json3 = null;
 
-        if(picurls!=null){
+        if(picurls.size()!=0){
             json1 = JSONArray.fromObject(picurls).toString();
         }
-        if (movurls!=null){
+        if (movurls.size()!=0){
             json2 = JSONArray.fromObject(movurls).toString();
         }
-        if (fileurls!=null){
+        if (fileurls.size()!=0){
             json3 = JSONArray.fromObject(fileurls).toString();
         }
         return  noticeService.updateNotice(noticeid, title, content,endtime,json1,json2,json3);
@@ -158,6 +173,15 @@ public class NoticeController {
     @RequestMapping(value = "/join_activity" ,method={RequestMethod.GET,RequestMethod.POST})
     public   JSONResult joinActivity(Integer noticeId,String openid)  {
         return  noticeService.joinActivity(noticeId, openid);
+    }
+
+    /**
+     *
+     * 查找用户是否已经参加活动
+     */
+    @RequestMapping(value = "/isjoinactivity" ,method={RequestMethod.GET,RequestMethod.POST})
+    public   JSONResult isJoinActivity(Integer noticeid,String openid)  {
+        return  noticeService.isjoinActivity(noticeid, openid);
     }
 
 
@@ -213,62 +237,7 @@ public class NoticeController {
     }
 
 
-    /**
-     * 创建新公告  传入 创建者openid，公告名，班级id,，类型 1公告 2通知 3活动，截至日期，文字内容，图片，视频，文件
-     * @param
-     * @return
-     */
-    @RequestMapping(value = "/test2" ,method={RequestMethod.GET,RequestMethod.POST})
-    public JSONResult testNotice() throws IOException
-    {   Notice newNotice = new Notice();
-        newNotice.setPublisher("test1");
-        newNotice.setContent("天天睡觉");
-        newNotice.setEndtime(null);
-        newNotice.setNoticeno(1);
-        newNotice.setReadNum(0);
-        newNotice.setTitle("放假啦");
-        newNotice.setTargetclass(50);
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
-        int day = cal.get(Calendar.DATE);
-        newNotice.setPublishtime(year+"-"+month+"-"+day);
 
-        //存JSON?
-        List<FileURL> picurls = new ArrayList<FileURL>();
-        List<FileURL> movurls = new ArrayList<FileURL>();
-        List<FileURL> fileurls = new ArrayList<FileURL>();
-        int i = 0,j=0,k=0;
-        String[] url={"a.jpg","b.jpg","a.mov"};
-        if(url!=null) {
-            for (String u : url) {
-                //1.图片 jsp 3.mov 2.file doc
-                String type = u.substring(u.lastIndexOf(".") + 1, u.length()).toLowerCase();
-
-                if (type.equals("jpg")) {
-                    picurls.add(new FileURL(i, u));
-                    i++;
-                } else if (type.equals("mov")) {
-                    movurls.add(new FileURL(j, u));
-                    j++;
-                } else if (type.equals("pdf")) {
-                    fileurls.add(new FileURL(k, u));
-                    k++;
-                } else {
-                    System.out.println("-------------------------------error---------------");
-                    return new JSONResult(Boolean.FALSE, "illegal file");
-                }
-            }
-        }
-        newNotice.setPicUrl(JSONArray.fromObject(picurls).toString());
-        newNotice.setFileUrl(JSONArray.fromObject(fileurls).toString());
-        newNotice.setMovUrl(JSONArray.fromObject(movurls).toString());
-
-
-
-        return  noticeService.addNotice(newNotice);
-
-    }
 
 
     /**

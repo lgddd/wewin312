@@ -1,24 +1,23 @@
 package com.wewin.service.Impl;
-import com.sun.org.glassfish.external.arc.Taxonomy;
 import com.wewin.entity.ClassInfo;
-import com.wewin.entity.GroupInfo;
 import com.wewin.entity.GroupMemberLink;
 import com.wewin.mapper.ClassInfoMapper;
+import com.wewin.mapper.HomeWorkMapper;
+import com.wewin.mapper.NoticeMemberMapper;
 import com.wewin.service.ClassInfoService;
 import com.wewin.service.GetQrcodeService;
 import com.wewin.service.GroupInfoService;
 import com.wewin.util.JSONResult;
 import com.wewin.util.QiniuUtil;
-import jdk.nashorn.internal.ir.annotations.Ignore;
-import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 @Service
 public  class ClassInfoServiceImpl implements ClassInfoService {
@@ -30,7 +29,10 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
     private GetQrcodeService getQrcodeService;
     @Autowired
     private GroupInfoService groupInfoService;
-
+    @Autowired
+    private NoticeMemberMapper noticeMemberMapper;
+    @Autowired
+    private HomeWorkMapper homeWorkMapper;
     /**
      * 根据班级id查询班级信息
      * @param id
@@ -38,10 +40,16 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
      */
     public JSONResult  getClassInfo(Integer id) {
         ClassInfo classinfo= classInfoMapper.selectClassById(id);
-        classinfo.setClassIcon(QiniuUtil.getDownLoadToekn(classinfo.getClassIcon()));
         JSONResult result;
         if(classinfo!=null){
-            result = new JSONResult(classinfo);
+            classinfo.setClassIcon(QiniuUtil.getDownLoadToekn(classinfo.getClassIcon()));
+            Map<String,Object> map = new HashMap<String, Object>();
+            map.put("classinfo",classinfo);
+                map.put("qrcodeurl",QiniuUtil.getDownLoadToekn("http://p2zhcnn8g.bkt.clouddn.com/"+classinfo.getClassId()+".jpg"))
+
+                ;
+
+            result = new JSONResult(map);
         }else{
             result = new JSONResult(Boolean.FALSE,"not found classinfo");
         }
@@ -100,16 +108,23 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
     @Transactional
    public JSONResult addClass(ClassInfo newClassInfo){
        JSONResult result;
+       //插入新班级数据
        int param = classInfoMapper.insert(newClassInfo);
        Integer classId = newClassInfo.getClassId();
 
+        //初始化默认组
        groupInfoService.adddefaultMemberGroup(classId);
-
+       //把创建者加入所有成员组
        GroupMemberLink link = new GroupMemberLink();
        link.setUserid(newClassInfo.getCreatorid());
        link.setGroupid(groupInfoService.findAllMemberGroup(classId));
-
        groupInfoService.addmember(link);
+
+       //班级学生人数+1 更新
+        ClassInfo classInfo = classInfoMapper.selectClassById(classId);
+        classInfo.setStudentSize(classInfo.getStudentSize()+1);
+        classInfoMapper.updateByPrimaryKey(classInfo);
+
        //System.out.println(param);
        if(param!=0){
            String qrcodeURL = null;
@@ -160,6 +175,10 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
         JSONResult result;
         //1.删除班级下的所有小组
         groupInfoService.deleteClassGroups(classId);
+        //2.删除班级下所有作业和作业成员信息
+        homeWorkMapper.deleteClassHomework(classId);
+        //2.删除班级下所有公告和公告成员信息
+        noticeMemberMapper.deleteClassNotice(classId);
         //2.删除班级
         if(classInfoMapper.deleteByPrimaryKey(classId)!=0){
             result = new JSONResult(Boolean.TRUE,"delete success");
@@ -170,7 +189,7 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
     }
     /**
      *
-     * 用户加入班级
+     * 用户通过扫码加入班级
      */
     @Override
     @Transactional
@@ -188,5 +207,17 @@ public  class ClassInfoServiceImpl implements ClassInfoService {
         classInfoMapper.updateByPrimaryKey(classInfo);
     }
 
+    /**
+     * 判断用户是否加入班级 在 return1 不在 return 0
+     * @param openid
+     * @param classid
+     * @return
+     */
+    @Override
+    public int isinclass(String openid, Integer classid){
+        if(classInfoMapper.selectIsInClass(openid,classid) == 0) return  0;
+
+        return 1;
+    }
 }
 

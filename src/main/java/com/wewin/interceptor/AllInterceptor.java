@@ -14,7 +14,7 @@ public class AllInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String URL="https://wewinnat.free.ngrok.cc/oauth/";//服务器的地址
+        String URL="http://www.moonlake.tech/WeWin/menuredirect";//服务器的地址
         //String URL="https://wewinnat.free.ngrok.cc/oauth";//服务器的地址
         String APPID="wxff32e2db397dbbf8";//APPID
         String RedirectUrl="https://open.weixin.qq.com/connect/oauth2/authorize?appid="+APPID+"&redirect_uri="+URL+

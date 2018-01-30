@@ -3,6 +3,7 @@ import com.wewin.entity.ClassInfo;
 import com.wewin.service.ClassInfoService;
 import com.wewin.service.GetQrcodeService;
 import com.wewin.util.JSONResult;
+import com.wewin.util.QiniuUtil;
 import jdk.nashorn.internal.scripts.JS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,7 +40,9 @@ public class ClassInfoController {
        */
     @RequestMapping(value = "/detail/findclass" ,method={RequestMethod.GET,RequestMethod.POST})
     public  JSONResult showClassInfo(Integer classId) throws IOException {
-       return classInfoService.getClassInfo(classId);
+        JSONResult result = classInfoService.getClassInfo(classId);
+        System.out.println(result.toString());
+       return result;
     }
 
     /**
@@ -59,7 +62,7 @@ public class ClassInfoController {
      * @return
      */
     @RequestMapping(value = "/setting/update" ,method={RequestMethod.GET,RequestMethod.POST})
-    public  JSONResult editMyClassInfo(String classname,Integer classId,  String iconpath, HttpServletResponse response) throws IOException {
+    public  JSONResult editMyClassInfo(String classname,Integer classId,  String iconpath) throws IOException {
 
         return classInfoService.updateClass(classId,classname,iconpath);
     }
@@ -103,54 +106,54 @@ public class ClassInfoController {
 
     }
 
-    /**
-     * 查询二维码图片：直接从服务器传
-     *
-     * 传入参数 type picName(二维码图片名为班级编号)
-     * 获取班级二维码 type = 1
-     * 获取头像 type = 0
-     * */
-    @RequestMapping(value = "/findicon", method = { RequestMethod.GET, RequestMethod.POST })
-    public void picture(HttpServletRequest request, HttpServletResponse response) {
-        String picName = request.getParameter("picName");
-        //String type = request.getParameter("type");
-        //if("1"==type){
-        String  type = "qrcode\\";
-        //}
-        //else {
-          //  type = "classicon\\";
-        //}
-        response.setContentType("image/png");
-        FileInputStream fis = null;
-        OutputStream os = null;
-        //String request_path = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
-        //String img_name = request_path+"/pic_file/"+type+picName+".jpg";
-        String tomcat_path = System.getProperty("user.dir");
-        System.out.println("tomcat_path"+tomcat_path);
-        String bin_path = tomcat_path.substring(tomcat_path.lastIndexOf("\\")+1,tomcat_path.length());
-        String img_name;
-        if(("bin").equals(bin_path)){
-            img_name = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\pic_file\\"+type+picName;
-            System.out.println("image_path"+img_name);
-        }else{
-            img_name = tomcat_path+"\\webapps"+"\\pic_file\\"+type+picName;
-            System.out.println("image_path"+img_name);
-        }
-        try {
-            fis = new FileInputStream( img_name);
-            os = response.getOutputStream();
-            int count = 0;
-            byte[] buffer = new byte[1024 * 8];
-            while ((count = fis.read(buffer)) != -1) {
-                os.write(buffer, 0, count);
-                os.flush();
-            }
-            fis.close();
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    /**
+//     * 查询二维码图片：直接从服务器传
+//     *
+//     * 传入参数 type picName(二维码图片名为班级编号)
+//     * 获取班级二维码 type = 1
+//     * 获取头像 type = 0
+//     * */
+//    @RequestMapping(value = "/findicon", method = { RequestMethod.GET, RequestMethod.POST })
+//    public void picture(HttpServletRequest request, HttpServletResponse response) {
+//        String picName = request.getParameter("picName");
+//        //String type = request.getParameter("type");
+//        //if("1"==type){
+//        String  type = "qrcode\\";
+//        //}
+//        //else {
+//          //  type = "classicon\\";
+//        //}
+//        response.setContentType("image/png");
+//        FileInputStream fis = null;
+//        OutputStream os = null;
+//        //String request_path = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
+//        //String img_name = request_path+"/pic_file/"+type+picName+".jpg";
+//        String tomcat_path = System.getProperty("user.dir");
+//        System.out.println("tomcat_path"+tomcat_path);
+//        String bin_path = tomcat_path.substring(tomcat_path.lastIndexOf("\\")+1,tomcat_path.length());
+//        String img_name;
+//        if(("bin").equals(bin_path)){
+//            img_name = tomcat_path.substring(0,System.getProperty("user.dir").lastIndexOf("\\"))+"\\webapps"+"\\pic_file\\"+type+picName;
+//            System.out.println("image_path"+img_name);
+//        }else{
+//            img_name = tomcat_path+"\\webapps"+"\\pic_file\\"+type+picName;
+//            System.out.println("image_path"+img_name);
+//        }
+//        try {
+//            fis = new FileInputStream( img_name);
+//            os = response.getOutputStream();
+//            int count = 0;
+//            byte[] buffer = new byte[1024 * 8];
+//            while ((count = fis.read(buffer)) != -1) {
+//                os.write(buffer, 0, count);
+//                os.flush();
+//            }
+//            fis.close();
+//            os.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      *
@@ -159,11 +162,10 @@ public class ClassInfoController {
      */
 
     @RequestMapping(value = "/deleteclass" ,method={RequestMethod.GET,RequestMethod.POST})
-    public   JSONResult deleteClasses(Integer classId)  {
+    public   JSONResult deleteClass(Integer classId)  {
         return  classInfoService.deleteClass(classId);
 
     }
-
 
 
 
